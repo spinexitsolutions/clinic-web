@@ -1,3 +1,5 @@
+import type { Labels } from "./labels";
+
 // ─────────────────────────────────────────────────────────────
 //  Domain model — everything the site renders and the admin edits
 // ─────────────────────────────────────────────────────────────
@@ -102,11 +104,14 @@ export interface HomeContent {
   proof: HomeProof;
   /** Eyebrow / title / accent / intro / link text for every homepage section. */
   headings: Record<HeadingKey, SectionHeading>;
+  /** Small UI labels inside sections (see lib/labels.ts). */
+  labels: Labels;
 }
 
 export type HeadingKey = "marquee" | "statement" | "services" | "stats" | "process" | "doctors" | "packages" | "testimonials" | "blog" | "faq" | "cta";
 
 export interface SectionHeading {
+  number?: string; // section index badge, e.g. "02"
   eyebrow: string;
   title: string;
   accent: string; // highlighted words after the title

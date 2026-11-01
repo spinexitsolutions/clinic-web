@@ -1,5 +1,6 @@
 "use server";
 
+import { DEFAULT_LABELS } from "@/lib/labels";
 import { promises as fs } from "fs";
 import path from "path";
 import { revalidatePath } from "next/cache";
@@ -114,6 +115,9 @@ export async function saveHome(home: HomeContent): Promise<AdminResult> {
       ...home,
       stats: home.stats.map((st) => ({ ...st, value: Number(st.value) || 0 })),
       marquee: home.marquee.filter(Boolean),
+      labels: Object.fromEntries(
+        (Object.keys(DEFAULT_LABELS) as (keyof typeof DEFAULT_LABELS)[]).map((k) => [k, s(home.labels?.[k] ?? DEFAULT_LABELS[k], 300) || DEFAULT_LABELS[k]]),
+      ) as HomeContent["labels"],
       proof: {
         ...home.proof,
         waitMinutes: Math.max(0, Number(home.proof.waitMinutes) || 0),

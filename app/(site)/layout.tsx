@@ -33,7 +33,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   };
 
   return (
-    <SiteProvider value={{ settings, appearance }}>
+    <SiteProvider value={{ settings, appearance, labels: db.home.labels }}>
       <IntroGate cfg={appearance.intro} />
       <Intro cfg={appearance.intro} />
       <SmoothScroll enabled={appearance.smoothScroll} />

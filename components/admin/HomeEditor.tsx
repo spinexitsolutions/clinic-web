@@ -8,6 +8,7 @@ import { saveHome } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
 import { Card, PageHeader, SaveBar, SectionTitle, Segmented, useAction } from "./ui";
 import { HEADING_FIELDS } from "@/lib/headings";
+import { DEFAULT_LABELS, LABEL_GROUPS, type LabelKey } from "@/lib/labels";
 import type { HeadingKey, SectionHeading } from "@/lib/types";
 import { FormFields, ImageInput, Label, StringList, type FieldDef } from "./fields";
 
@@ -32,7 +33,7 @@ const CTA: FieldDef[] = [
   { key: "cta.image", label: "Background image", type: "image" },
 ];
 
-type Tab = "layout" | "hero" | "headings" | "story" | "proof" | "process" | "cta";
+type Tab = "layout" | "hero" | "headings" | "labels" | "story" | "proof" | "process" | "cta";
 
 export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?: { id: string; name: string }[] }) {
   const router = useRouter();
@@ -62,6 +63,7 @@ export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?
             { value: "layout", label: "Sections" },
             { value: "hero", label: "Hero" },
             { value: "headings", label: "Headings" },
+            { value: "labels", label: "Labels" },
             { value: "story", label: "Statement & numbers" },
             { value: "proof", label: "Proof & details" },
             { value: "process", label: "How it works" },
@@ -133,6 +135,8 @@ export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?
           </Card>
         </div>
       )}
+
+      {tab === "labels" && <LabelsEditor labels={h.labels} onChange={(labels) => setH({ ...h, labels })} />}
 
       {tab === "headings" && <HeadingsEditor headings={h.headings} onChange={(headings) => setH({ ...h, headings })} />}
 
@@ -312,6 +316,7 @@ const HEADING_SECTIONS: { key: HeadingKey; label: string; where: string }[] = [
 ];
 
 const FIELD_LABEL: Record<keyof SectionHeading, string> = {
+  number: "Section number",
   eyebrow: "Small label",
   title: "Title",
   accent: "Highlighted words",
@@ -339,9 +344,9 @@ function HeadingsEditor({ headings, onChange }: { headings: HomeContent["heading
                 <label key={f} className={cn("block", (f === "intro" || f === "title" || f === "accent") && fields.includes("accent") ? (f === "intro" ? "col-span-2" : "col-span-2 sm:col-span-1") : "col-span-2 sm:col-span-1")}>
                   <Label>{FIELD_LABEL[f]}</Label>
                   {f === "intro" && key !== "marquee" ? (
-                    <textarea rows={2} value={hd[f]} onChange={(e) => set(key, f, e.target.value)} className="field text-sm" />
+                    <textarea rows={2} value={hd[f] ?? ""} onChange={(e) => set(key, f, e.target.value)} className="field text-sm" />
                   ) : (
-                    <input value={hd[f]} onChange={(e) => set(key, f, e.target.value)} className="field h-11 text-sm" />
+                    <input value={hd[f] ?? ""} onChange={(e) => set(key, f, e.target.value)} className="field h-11 text-sm" />
                   )}
                 </label>
               ))}
@@ -349,6 +354,53 @@ function HeadingsEditor({ headings, onChange }: { headings: HomeContent["heading
           </Card>
         );
       })}
+    </div>
+  );
+}
+
+function LabelsEditor({ labels, onChange }: { labels: HomeContent["labels"]; onChange: (l: HomeContent["labels"]) => void }) {
+  const [q, setQ] = useState("");
+  const set = (k: LabelKey, v: string) => onChange({ ...labels, [k]: v });
+  const match = (k: LabelKey, name: string) => !q || `${name} ${labels[k] ?? ""} ${k}`.toLowerCase().includes(q.toLowerCase());
+  return (
+    <div>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search labels…" className="field h-11 max-w-sm text-sm" />
+        <p className="text-xs text-muted">Small text inside sections. Leave a placeholder like {"{n}"} or {"{name}"} where shown — it’s filled in automatically.</p>
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {LABEL_GROUPS.map((g) => {
+          const items = g.items.filter(([k, name]) => match(k, name));
+          if (!items.length) return null;
+          return (
+            <Card key={g.title}>
+              <SectionTitle hint={g.hint}>{g.title}</SectionTitle>
+              <div className="space-y-3">
+                {items.map(([k, name]) => {
+                  const changed = (labels[k] ?? DEFAULT_LABELS[k]) !== DEFAULT_LABELS[k];
+                  return (
+                    <label key={k} className="block">
+                      <span className="mb-1.5 flex items-center justify-between gap-2 text-[13px] font-medium text-ink/80">
+                        {name}
+                        {changed && (
+                          <button type="button" onClick={() => set(k, DEFAULT_LABELS[k])} className="text-[11px] font-normal text-accent hover:underline">
+                            Reset
+                          </button>
+                        )}
+                      </span>
+                      {DEFAULT_LABELS[k].length > 60 ? (
+                        <textarea rows={2} value={labels[k] ?? ""} onChange={(e) => set(k, e.target.value)} className="field text-sm" placeholder={DEFAULT_LABELS[k]} />
+                      ) : (
+                        <input value={labels[k] ?? ""} onChange={(e) => set(k, e.target.value)} className="field h-11 text-sm" placeholder={DEFAULT_LABELS[k]} />
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }

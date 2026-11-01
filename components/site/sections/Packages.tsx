@@ -8,6 +8,7 @@ import { cn, money } from "@/lib/utils";
 import { SplitWords } from "@/components/motion/Reveal";
 import { heading as headingFor } from "@/lib/headings";
 import type { SectionHeading } from "@/lib/types";
+import { useLabels } from "../SiteContext";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -23,6 +24,7 @@ export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { pac
   const sorted = [...packages].sort((a, b) => a.order - b.order);
   const initial = sorted.find((p) => p.highlighted)?.id ?? sorted[0]?.id;
   const [active, setActive] = useState(initial);
+  const t = useLabels();
   const p = sorted.find((x) => x.id === active) ?? sorted[0];
   if (!p) return null;
   const save = p.compareAt > p.price ? Math.round(((p.compareAt - p.price) / p.compareAt) * 100) : 0;
@@ -50,7 +52,7 @@ export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { pac
                   <span>
                     <span className={cn("block text-[11px] font-semibold uppercase tracking-[0.14em]", on ? "text-highlight" : "text-muted")}>
                       0{i + 1}
-                      {x.highlighted ? " · Most booked" : ""}
+                      {x.highlighted ? ` · ${t("pkgMostBooked")}` : ""}
                     </span>
                     <span className="mt-1 block whitespace-nowrap font-display text-[20px] font-semibold tracking-[-0.025em] lg:text-[26px]">{x.name}</span>
                   </span>
@@ -77,8 +79,8 @@ export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { pac
             >
               <div className="flex flex-col">
                 <div className="flex flex-wrap items-center gap-2">
-                  {save > 0 && <span className="rounded-full bg-highlight px-3 py-1 text-[12px] font-semibold text-ink">Save {save}%</span>}
-                  <span className="rounded-full bg-accent-soft px-3 py-1 text-[12px] font-semibold text-accent">{p.features.length} inclusions</span>
+                  {save > 0 && <span className="rounded-full bg-highlight px-3 py-1 text-[12px] font-semibold text-ink">{t("pkgSave", { n: save })}</span>}
+                  <span className="rounded-full bg-accent-soft px-3 py-1 text-[12px] font-semibold text-accent">{t("pkgInclusions", { n: p.features.length })}</span>
                 </div>
                 <h3 className="mt-6 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-none tracking-[-0.035em]">{p.name}</h3>
                 <p className="mt-3 max-w-sm text-[16px] leading-relaxed text-muted">{p.tagline}</p>
@@ -86,9 +88,9 @@ export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { pac
                   <span className="font-display text-[clamp(3.2rem,6vw,4.8rem)] font-semibold leading-[0.85] tracking-[-0.045em]">{money(p.price, currency)}</span>
                   {p.compareAt > p.price && <span className="pb-1 text-[16px] text-muted line-through">{money(p.compareAt, currency)}</span>}
                 </div>
-                <p className="mt-2 text-[13px] text-muted">All taxes included · Pay at visit</p>
+                <p className="mt-2 text-[13px] text-muted">{t("pkgTaxNote")}</p>
                 <Link href={`/book?package=${p.id}`} className="btn btn-accent mt-8 h-14 self-start px-7">
-                  Book {p.name} <ArrowUpRight className="h-4 w-4" />
+                  {t("pkgBook", { name: p.name })} <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
 
@@ -116,7 +118,7 @@ export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { pac
                 </ul>
 
                 <div>
-                  <p className="eyebrow mb-4">What happens next</p>
+                  <p className="eyebrow mb-4">{t("pkgNextTitle")}</p>
                   <ol className="relative grid grid-cols-3 gap-2">
                     <span aria-hidden className="absolute left-[16%] right-[16%] top-5 h-px bg-line" />
                     <motion.span

@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { ArrowUpRight, MessageCircle, Phone, Plus } from "lucide-react";
 import type { FAQ as FAQItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useSite } from "../SiteContext";
+import { useLabels, useSite } from "../SiteContext";
 import { Img } from "../Img";
 import { heading as headingFor } from "@/lib/headings";
 import type { SectionHeading } from "@/lib/types";
@@ -80,7 +80,8 @@ export function FAQSection({ faqs, avatars = TEAM, heading }: { faqs: FAQItem[];
   const cats = useMemo(() => ["All", ...Array.from(new Set(faqs.map((f) => f.category)))], [faqs]);
   const [cat, setCat] = useState("All");
   const list = faqs.filter((f) => cat === "All" || f.category === cat);
-  const wa = `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${settings.shortName}, I have a question.`)}`;
+  const t = useLabels();
+  const wa = `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(t("faqWhatsappMessage", { name: settings.shortName }))}`;
 
   return (
     <section className="container-x grid gap-12 py-20 md:py-32 lg:grid-cols-12 lg:gap-10">
@@ -102,14 +103,14 @@ export function FAQSection({ faqs, avatars = TEAM, heading }: { faqs: FAQItem[];
                 <span className="pulse-dot relative h-2 w-2 rounded-full bg-accent text-accent" />
               </span>
             </div>
-            <p className="mt-5 font-display text-[22px] font-semibold leading-tight tracking-[-0.02em]">Still have questions?</p>
-            <p className="mt-2 text-[14px] leading-relaxed text-bg/60">Our care team replies in minutes during opening hours — no bots.</p>
+            <p className="mt-5 font-display text-[22px] font-semibold leading-tight tracking-[-0.02em]">{t("faqCardTitle")}</p>
+            <p className="mt-2 text-[14px] leading-relaxed text-bg/60">{t("faqCardText")}</p>
             <div className="mt-6 grid grid-cols-2 gap-2">
               <a href={`tel:${settings.phone.replace(/\s/g, "")}`} className="flex h-12 items-center justify-center gap-2 rounded-full bg-bg/10 text-[14px] font-semibold transition-colors hover:bg-bg/20">
-                <Phone className="h-4 w-4" /> Call
+                <Phone className="h-4 w-4" /> {t("faqCall")}
               </a>
               <a href={wa} target="_blank" rel="noreferrer" className="flex h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] text-[14px] font-semibold text-white transition-transform active:scale-95">
-                <MessageCircle className="h-4 w-4" /> WhatsApp
+                <MessageCircle className="h-4 w-4" /> {t("faqWhatsapp")}
               </a>
             </div>
           </div>

@@ -59,7 +59,7 @@ export default async function Home() {
   const render: Record<HomeSectionKey, React.ReactNode> = {
     hero: <Hero hero={home.hero} slides={slides} stats={home.stats} />,
     marquee: <Marquee items={home.marquee} heading={hd.marquee} />,
-    statement: <Statement text={home.statement} label={hd.statement.eyebrow} signature={signer ? { name: signer.name, role: proof.signatureRole, image: signer.image } : null} principles={proof.principles} />,
+    statement: <Statement text={home.statement} index={hd.statement.number || ""} label={hd.statement.eyebrow} signature={signer ? { name: signer.name, role: proof.signatureRole, image: signer.image } : null} principles={proof.principles} />,
     services: <Services services={services} currency={settings.currency} doctors={doctors} heading={hd.services} />,
     stats: <Stats stats={home.stats} avatars={featuredDoctors.map((d) => d.image)} accreditations={db.about.accreditations} waitMinutes={proof.waitMinutes} cityAvgWait={proof.cityAvgWait} growthBadge={proof.growthBadge} recommendSource={proof.recommendSource} accreditationTitle={proof.accreditation} heading={hd.stats} />,
     process: <Process steps={home.process} heading={hd.process} />,

@@ -1,4 +1,5 @@
 import { DEFAULT_HEADINGS, DEFAULT_MEGA } from "./headings";
+import { DEFAULT_LABELS } from "./labels";
 import type { Appointment, AppointmentStatus, Database, Lead, LeadStage, Patient } from "./types";
 
 const U = (id: string) => `https://images.unsplash.com/photo-${id}`;
@@ -542,6 +543,7 @@ export function createSeed(): Database {
         accreditation: { title: "Certified to the", accent: "highest national standards." },
       },
       headings: structuredClone(DEFAULT_HEADINGS),
+      labels: { ...DEFAULT_LABELS },
       cta: {
         title: "Feel better, sooner.",
         subtitle: "Same-day appointments across every specialty. Most visits start on time.",

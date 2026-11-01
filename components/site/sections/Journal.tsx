@@ -9,10 +9,12 @@ import { Img } from "../Img";
 import { Reveal, SplitWords } from "@/components/motion/Reveal";
 import { heading as headingFor } from "@/lib/headings";
 import type { SectionHeading } from "@/lib/types";
+import { useLabels } from "../SiteContext";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export function PostCard({ p, large }: { p: Post; large?: boolean }) {
+  const t = useLabels();
   return (
     <Link href={`/blog/${p.slug}`} data-cursor="Read" className="group block">
       <div className={`relative overflow-hidden rounded-[var(--radius)] bg-accent-soft ${large ? "aspect-[4/3] md:aspect-[16/11]" : "aspect-[4/3]"}`}>
@@ -22,7 +24,7 @@ export function PostCard({ p, large }: { p: Post; large?: boolean }) {
       <div className="mt-5 flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.1em] text-muted">
         <span>{formatDate(p.publishedAt)}</span>
         <span className="h-1 w-1 rounded-full bg-muted" />
-        <span>{p.readMinutes} min read</span>
+        <span>{t("journalMinRead", { n: p.readMinutes })}</span>
       </div>
       <h3 className={`mt-3 font-semibold leading-[1.08] tracking-[-0.025em] transition-colors group-hover:text-accent ${large ? "text-[clamp(1.6rem,3vw,2.4rem)]" : "text-[22px]"}`}>
         {p.title}
@@ -33,19 +35,20 @@ export function PostCard({ p, large }: { p: Post; large?: boolean }) {
 }
 
 function Featured({ p }: { p: Post }) {
+  const t = useLabels();
   return (
     <Link href={`/blog/${p.slug}`} data-cursor="Read" className="group relative block h-full min-h-[460px] overflow-hidden rounded-[var(--radius)] bg-ink text-white md:min-h-[600px]">
       <Img src={p.cover} alt={p.title} fill sizes="(max-width:1024px) 100vw, 55vw" className="object-cover opacity-90 transition-transform duration-[1.4s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.04]" />
       <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-ink/10" />
       <div className="absolute left-5 right-5 top-5 flex items-center justify-between md:left-7 md:right-7 md:top-7">
-        <span className="rounded-full bg-highlight px-3 py-1 text-[12px] font-semibold text-ink">Featured · {p.category}</span>
+        <span className="rounded-full bg-highlight px-3 py-1 text-[12px] font-semibold text-ink">{t("journalFeatured")} · {p.category}</span>
         <span className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur-md transition-transform duration-500 group-hover:rotate-45">
           <ArrowUpRight className="h-4 w-4" />
         </span>
       </div>
       <div className="absolute inset-x-0 bottom-0 p-6 md:p-9">
         <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-white/60">
-          {formatDate(p.publishedAt)} · {p.readMinutes} min read · {p.author}
+          {formatDate(p.publishedAt)} · {t("journalMinRead", { n: p.readMinutes })} · {p.author}
         </p>
         <h3 className="mt-3 max-w-[20ch] text-[clamp(1.8rem,3.4vw,3rem)] font-semibold leading-[1.02] tracking-[-0.03em]">{p.title}</h3>
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/70">{p.excerpt}</p>
@@ -57,6 +60,7 @@ function Featured({ p }: { p: Post }) {
 /** Editorial journal: one featured story, a numbered index with a cursor-follow preview. */
 export function Journal({ posts, heading }: { posts: Post[]; heading?: Partial<SectionHeading> }) {
   const H = headingFor("blog", heading);
+  const t = useLabels();
   const [hover, setHover] = useState<Post | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -116,7 +120,7 @@ export function Journal({ posts, heading }: { posts: Post[]; heading?: Partial<S
               </Reveal>
             ))}
           </ol>
-          {list.length === 0 && <p className="text-muted">More articles coming soon.</p>}
+          {list.length === 0 && <p className="text-muted">{t("journalEmpty")}</p>}
 
           {/* cursor-follow preview (desktop) */}
           <motion.div

@@ -6,6 +6,7 @@ import { ArrowUpRight, Clock, Plus } from "lucide-react";
 import type { Doctor, Service } from "@/lib/types";
 import { cn, money } from "@/lib/utils";
 import { Img } from "../Img";
+import { useLabels } from "../SiteContext";
 import { Icon } from "../Icon";
 import { Reveal, SplitWords } from "@/components/motion/Reveal";
 import { heading as headingFor } from "@/lib/headings";
@@ -21,6 +22,7 @@ const wipe = [0.76, 0, 0.24, 1] as const;
  */
 export function Services({ services, currency, doctors = [], heading }: { services: Service[]; currency: string; doctors?: Doctor[]; heading?: Partial<SectionHeading> }) {
   const H = headingFor("services", heading);
+  const t = useLabels();
   const [active, setActiveRaw] = useState(0);
   const [layers, setLayers] = useState<{ id: number; i: number }[]>([{ id: 0, i: 0 }]);
   const setActive = (i: number) => {
@@ -38,7 +40,7 @@ export function Services({ services, currency, doctors = [], heading }: { servic
       <div className="mb-12 grid gap-6 md:mb-16 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-7">
           <p className="eyebrow flex items-center gap-3">
-            <span className="text-accent">02</span> <span className="h-px w-8 bg-line" /> {H.eyebrow}
+            {H.number && <span className="text-accent">{H.number}</span>} {H.number && <span className="h-px w-8 bg-line" />} {H.eyebrow}
           </p>
           <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
             <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.12} /></span>
@@ -69,7 +71,7 @@ export function Services({ services, currency, doctors = [], heading }: { servic
                     {x.name}
                   </span>
                   <span className={cn("ml-auto flex items-center gap-4 text-[13px] transition-opacity duration-500", on ? "opacity-100" : "opacity-0")}>
-                    <span className="text-muted">{n ? `${n} doctor${n > 1 ? "s" : ""}` : "Care team"}</span>
+                    <span className="text-muted">{n ? (n === 1 ? t("servicesDoctorCountOne") : t("servicesDoctorCount", { n })) : t("servicesNoDoctors")}</span>
                     <span className="font-semibold">from {money(x.priceFrom, currency)}</span>
                     <span className="grid h-9 w-9 place-items-center rounded-full bg-ink text-bg transition-transform duration-500 group-hover:rotate-45">
                       <ArrowUpRight className="h-4 w-4" />
@@ -140,7 +142,7 @@ export function Services({ services, currency, doctors = [], heading }: { servic
                       </span>
                     </div>
                     <Link href={`/book?service=${s.id}`} className="btn h-11 shrink-0 bg-white px-5 text-ink hover:bg-highlight">
-                      Book <ArrowUpRight className="h-4 w-4" />
+                      {t("servicesBook")} <ArrowUpRight className="h-4 w-4" />
                     </Link>
                   </div>
                 </motion.div>
@@ -177,8 +179,8 @@ export function Services({ services, currency, doctors = [], heading }: { servic
                       <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                         <p className="text-[14.5px] leading-snug text-white/85">{x.short}</p>
                         <div className="mt-3 flex gap-2">
-                          <Link href={`/book?service=${x.id}`} className="btn h-10 bg-white px-4 text-[14px] text-ink">Book</Link>
-                          <Link href={`/services/${x.slug}`} className="btn h-10 bg-white/15 px-4 text-[14px] text-white backdrop-blur-md">Details</Link>
+                          <Link href={`/book?service=${x.id}`} className="btn h-10 bg-white px-4 text-[14px] text-ink">{t("servicesBook")}</Link>
+                          <Link href={`/services/${x.slug}`} className="btn h-10 bg-white/15 px-4 text-[14px] text-white backdrop-blur-md">{t("servicesDetails")}</Link>
                         </div>
                       </div>
                     </div>

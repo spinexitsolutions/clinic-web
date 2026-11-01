@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { ArrowUpRight, CalendarCheck, MessageCircle, Siren } from "lucide-react";
 import type { HomeContent, Insurance } from "@/lib/types";
-import { useSite } from "../SiteContext";
+import { useLabels, useSite } from "../SiteContext";
 import { Img } from "../Img";
 import { heading as headingFor } from "@/lib/headings";
 import type { SectionHeading } from "@/lib/types";
@@ -15,6 +15,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function CTA({ cta, insurers, insurersLabel = "30+ insurers", heading }: { cta: HomeContent["cta"]; insurers: Insurance[]; insurersLabel?: string; heading?: Partial<SectionHeading> }) {
   const H = headingFor("cta", heading);
   const { settings } = useSite();
+  const t = useLabels();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start 0.25"] });
   const scale = useTransform(scrollYProgress, [0, 1], [0.94, 1]);
@@ -22,16 +23,16 @@ export function CTA({ cta, insurers, insurersLabel = "30+ insurers", heading }: 
 
   const words = cta.title.split(" ");
   const last = words.pop();
-  const wa = `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${settings.shortName}, I'd like to book an appointment.`)}`;
+  const wa = `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(t("ctaWhatsappMessage", { name: settings.shortName }))}`;
 
   const channels = [
     {
       href: "/book",
       external: false,
       icon: CalendarCheck,
-      kicker: "Online · 40 seconds",
-      title: "Book a visit",
-      sub: "Pick a doctor and a live slot",
+      kicker: t("ctaBookKicker"),
+      title: t("ctaBookTitle"),
+      sub: t("ctaBookSub"),
       cls: "bg-highlight text-ink",
       iconCls: "bg-ink text-highlight",
     },
@@ -39,8 +40,8 @@ export function CTA({ cta, insurers, insurersLabel = "30+ insurers", heading }: 
       href: wa,
       external: true,
       icon: MessageCircle,
-      kicker: "WhatsApp · replies in minutes",
-      title: "Chat with us",
+      kicker: t("ctaChatKicker"),
+      title: t("ctaChatTitle"),
       sub: settings.phone,
       cls: "bg-bg/[0.07] text-bg hover:bg-bg/[0.12]",
       iconCls: "bg-[#25D366] text-white",
@@ -49,9 +50,9 @@ export function CTA({ cta, insurers, insurersLabel = "30+ insurers", heading }: 
       href: `tel:${settings.emergencyPhone.replace(/\s/g, "")}`,
       external: false,
       icon: Siren,
-      kicker: "Emergency · 24 × 7",
+      kicker: t("ctaEmergencyKicker"),
       title: settings.emergencyPhone,
-      sub: "Ambulance & urgent care",
+      sub: t("ctaEmergencySub"),
       cls: "bg-coral text-white",
       iconCls: "bg-white text-coral",
     },

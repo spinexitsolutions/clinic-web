@@ -3,8 +3,9 @@ import type { HeadingKey, MegaMenuContent, SectionHeading } from "./types";
 /** Default section headings — used by the seed and as fallbacks in components. */
 export const DEFAULT_HEADINGS: Record<HeadingKey, SectionHeading> = {
   marquee: { eyebrow: "Specialties", title: "", accent: "", intro: "under one roof", link: "" },
-  statement: { eyebrow: "Philosophy", title: "", accent: "", intro: "", link: "" },
+  statement: { number: "01", eyebrow: "Philosophy", title: "", accent: "", intro: "", link: "" },
   services: {
+    number: "02",
     eyebrow: "Specialties",
     title: "Every specialty,",
     accent: "one calm roof.",
@@ -12,8 +13,9 @@ export const DEFAULT_HEADINGS: Record<HeadingKey, SectionHeading> = {
     link: "Browse all specialties",
   },
   stats: { eyebrow: "In numbers", title: "The quiet", accent: "proof.", intro: "A decade of measurable, patient-first care — tracked honestly and published openly.", link: "" },
-  process: { eyebrow: "Your visit", title: "One visit,", accent: "four heartbeats.", intro: "We designed every minute of a Solace visit — from the moment you book to the call a week later.", link: "" },
+  process: { number: "03", eyebrow: "Your visit", title: "One visit,", accent: "four heartbeats.", intro: "We designed every minute of a Solace visit — from the moment you book to the call a week later.", link: "" },
   doctors: {
+    number: "04",
     eyebrow: "Care team",
     title: "Specialists who",
     accent: "make time.",
@@ -36,11 +38,11 @@ export const DEFAULT_HEADINGS: Record<HeadingKey, SectionHeading> = {
 /** Which fields each section actually renders (drives the admin form). */
 export const HEADING_FIELDS: Record<HeadingKey, (keyof SectionHeading)[]> = {
   marquee: ["eyebrow", "intro"],
-  statement: ["eyebrow"],
-  services: ["eyebrow", "title", "accent", "intro", "link"],
+  statement: ["number", "eyebrow"],
+  services: ["number", "eyebrow", "title", "accent", "intro", "link"],
   stats: ["eyebrow", "title", "accent", "intro"],
-  process: ["eyebrow", "title", "accent", "intro"],
-  doctors: ["eyebrow", "title", "accent", "intro", "link"],
+  process: ["number", "eyebrow", "title", "accent", "intro"],
+  doctors: ["number", "eyebrow", "title", "accent", "intro", "link"],
   packages: ["eyebrow", "title", "accent", "intro"],
   testimonials: ["eyebrow", "title", "accent"],
   blog: ["eyebrow", "title", "accent", "link"],

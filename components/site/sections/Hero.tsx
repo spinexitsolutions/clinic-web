@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, CalendarClock, Star } from "lucide-react";
 import type { Doctor, HomeContent, Service } from "@/lib/types";
 import { useIntroDone } from "@/components/motion/Intro";
-import { useSite } from "../SiteContext";
+import { useLabels, useSite } from "../SiteContext";
 import { Img } from "../Img";
 import { cn, openStatus, timeLabel } from "@/lib/utils";
 
@@ -20,13 +20,13 @@ export type HeroSlide = {
   next: { date: string; time: string } | null;
 };
 
-function nextLabel(next: HeroSlide["next"]) {
-  if (!next) return "Call to book";
+function nextLabel(next: HeroSlide["next"], t: ReturnType<typeof useLabels>) {
+  if (!next) return t("heroCallToBook");
   const d = new Date(next.date + "T00:00:00");
-  const t = new Date();
-  const today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+  const n = new Date();
+  const today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
   const diff = Math.round((d.getTime() - today.getTime()) / 864e5);
-  const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  const day = diff === 0 ? t("today") : diff === 1 ? t("tomorrow") : d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
   return `${day} · ${timeLabel(next.time)}`;
 }
 
@@ -64,6 +64,7 @@ function Blinds({ src, first }: { src: string; first: boolean }) {
 
 function LiveStatus() {
   const { settings } = useSite();
+  const t = useLabels();
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     setNow(new Date());
@@ -75,7 +76,7 @@ function LiveStatus() {
   return (
     <span className="flex items-center gap-2.5">
       <span className={cn("pulse-dot relative h-1.5 w-1.5 rounded-full", st.open ? "bg-highlight text-highlight" : "bg-coral text-coral")} />
-      <span>{st.open ? "Open now" : st.label}</span>
+      <span>{st.open ? t("openNow") : st.label}</span>
       <span className="h-3 w-px bg-white/25" />
       <span className="tabular-nums">{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })} IST</span>
     </span>
@@ -83,6 +84,7 @@ function LiveStatus() {
 }
 
 export function Hero({ hero, slides, stats }: { hero: HomeContent["hero"]; slides: HeroSlide[]; stats: HomeContent["stats"] }) {
+  const t = useLabels();
   const go = useIntroDone();
   const [i, setI] = useState(0);
   const [history, setHistory] = useState<{ n: number; id: number }[]>([{ n: 0, id: 0 }]);
@@ -171,7 +173,7 @@ export function Hero({ hero, slides, stats }: { hero: HomeContent["hero"]; slide
             {/* left: message */}
             <div className="lg:col-span-7">
               <div className="mb-5 flex items-center gap-3 overflow-hidden text-[13px] font-medium">
-                <span className="rounded-full bg-white/12 px-3 py-1 text-white/70 backdrop-blur-md">Now viewing</span>
+                <span className="rounded-full bg-white/12 px-3 py-1 text-white/70 backdrop-blur-md">{t("heroNowViewing")}</span>
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={slide.service.id}
@@ -249,7 +251,7 @@ export function Hero({ hero, slides, stats }: { hero: HomeContent["hero"]; slide
                           <span className="text-[12px] font-medium text-white/70">{slide.doctor.rating.toFixed(1)}</span>
                         </span>
                         <span className="mt-0.5 flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[12.5px] text-white/65">
-                          <CalendarClock className="h-3.5 w-3.5 shrink-0" /> <span className="lg:hidden xl:inline">Next free ·</span> <span className="truncate text-white">{nextLabel(slide.next)}</span>
+                          <CalendarClock className="h-3.5 w-3.5 shrink-0" /> <span className="lg:hidden xl:inline">{t("nextFree")} ·</span> <span className="truncate text-white">{nextLabel(slide.next, t)}</span>
                         </span>
                       </span>
                       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-highlight text-ink transition-transform duration-500 group-hover:rotate-45">

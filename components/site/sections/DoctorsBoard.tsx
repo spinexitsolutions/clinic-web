@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ArrowUpRight, Languages, Star } from "lucide-react";
 import type { Doctor } from "@/lib/types";
 import { Img } from "../Img";
+import { useLabels } from "../SiteContext";
 import { Reveal, SplitWords } from "@/components/motion/Reveal";
 import { cn, money, timeLabel } from "@/lib/utils";
 import { heading as headingFor } from "@/lib/headings";
@@ -13,13 +14,13 @@ import type { SectionHeading } from "@/lib/types";
 const ease = [0.22, 1, 0.36, 1] as const;
 export type NextSlots = Record<string, { date: string; time: string } | null>;
 
-function whenLabel(n?: { date: string; time: string } | null) {
-  if (!n) return { day: "On request", time: "", today: false };
+function whenLabel(n: { date: string; time: string } | null | undefined, t: ReturnType<typeof useLabels>) {
+  if (!n) return { day: t("boardOnRequest"), time: "", today: false };
   const d = new Date(n.date + "T00:00:00");
-  const t = new Date();
-  const diff = Math.round((d.getTime() - new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime()) / 864e5);
+  const now = new Date();
+  const diff = Math.round((d.getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 864e5);
   return {
-    day: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" }),
+    day: diff === 0 ? t("today") : diff === 1 ? t("tomorrow") : d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" }),
     time: timeLabel(n.time),
     today: diff === 0,
   };
@@ -31,6 +32,7 @@ function whenLabel(n?: { date: string; time: string } | null) {
  */
 export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", heading }: { doctors: Doctor[]; nextSlots?: NextSlots; currency?: string; heading?: Partial<SectionHeading> }) {
   const H = headingFor("doctors", heading);
+  const t = useLabels();
   const [hover, setHover] = useState<Doctor | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -43,7 +45,7 @@ export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", headin
       <div className="mb-10 grid gap-6 md:mb-14 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-7">
           <p className="eyebrow flex items-center gap-3">
-            <span className="text-accent">04</span> <span className="h-px w-8 bg-line" /> {H.eyebrow}
+            {H.number && <span className="text-accent">{H.number}</span>} {H.number && <span className="h-px w-8 bg-line" />} {H.eyebrow}
           </p>
           <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
             <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.12} /></span>
@@ -68,18 +70,18 @@ export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", headin
         onMouseLeave={() => setHover(null)}
       >
         <div className="grid grid-cols-[2.2fr_1.3fr_0.8fr_1.4fr_1.3fr_auto] gap-6 border-b border-ink px-4 pb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-          <span>Doctor</span>
-          <span>Specialty</span>
-          <span>Experience</span>
-          <span>Speaks</span>
+          <span>{t("boardDoctor")}</span>
+          <span>{t("boardSpecialty")}</span>
+          <span>{t("boardExperience")}</span>
+          <span>{t("boardSpeaks")}</span>
           <span className="flex items-center gap-2">
-            <span className="pulse-dot relative h-1.5 w-1.5 rounded-full bg-accent text-accent" /> Next free
+            <span className="pulse-dot relative h-1.5 w-1.5 rounded-full bg-accent text-accent" /> {t("nextFree")}
           </span>
           <span className="w-[120px]" />
         </div>
         <ul>
           {list.map((d, i) => {
-            const w = whenLabel(nextSlots[d.id]);
+            const w = whenLabel(nextSlots[d.id], t);
             return (
               <Reveal as="li" key={d.id} delay={i * 0.05} y={16}>
                 <Link
@@ -97,7 +99,7 @@ export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", headin
                     </span>
                   </span>
                   <span className="text-[14.5px]">{d.specialty}</span>
-                  <span className="text-[14.5px] tabular-nums">{d.experience}+ yrs</span>
+                  <span className="text-[14.5px] tabular-nums">{t("boardYears", { n: d.experience })}</span>
                   <span className="truncate text-[14px] text-muted">{d.languages.join(", ")}</span>
                   <span className="flex items-center gap-2">
                     <span className={cn("rounded-full px-2.5 py-1 text-[12px] font-semibold", w.today ? "bg-highlight text-ink" : "bg-accent-soft text-accent-deep")}>{w.day}</span>
@@ -145,7 +147,7 @@ export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", headin
       {/* mobile roster */}
       <ul className="grid gap-3 sm:grid-cols-2 lg:hidden">
         {list.map((d, i) => {
-          const w = whenLabel(nextSlots[d.id]);
+          const w = whenLabel(nextSlots[d.id], t);
           return (
             <Reveal as="li" key={d.id} delay={i * 0.05}>
               <Link href={`/doctors/${d.slug}`} className="flex gap-4 rounded-[var(--radius)] bg-white p-3 shadow-[inset_0_0_0_1px_var(--line)]">
@@ -154,7 +156,7 @@ export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", headin
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col py-1">
                   <span className="font-display text-[19px] font-semibold leading-tight tracking-[-0.02em]">{d.name}</span>
-                  <span className="text-[13px] text-muted">{d.specialty} · {d.experience}+ yrs</span>
+                  <span className="text-[13px] text-muted">{d.specialty} · {t("boardYears", { n: d.experience })}</span>
                   <span className="mt-1 flex items-center gap-1 text-[12px] text-muted"><Languages className="h-3 w-3" /> <span className="truncate">{d.languages.slice(0, 3).join(", ")}</span></span>
                   <span className="mt-auto flex items-center gap-2 pt-2">
                     <span className={cn("rounded-full px-2 py-0.5 text-[11.5px] font-semibold", w.today ? "bg-highlight text-ink" : "bg-accent-soft text-accent-deep")}>{w.day}</span>

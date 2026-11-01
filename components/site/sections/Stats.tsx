@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Img } from "../Img";
 import { heading as headingFor } from "@/lib/headings";
 import type { SectionHeading } from "@/lib/types";
+import { useLabels } from "../SiteContext";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 type Stat = HomeContent["stats"][number];
@@ -145,6 +146,7 @@ export function Stats({
   accreditations?: string[];
 }) {
   const H = headingFor("stats", heading);
+  const t = useLabels();
   const ref = useRef<HTMLDivElement>(null);
   const go = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
 
@@ -180,7 +182,7 @@ export function Stats({
             <Sparkline go={go} />
             <div className="relative z-10 mt-auto flex justify-between pt-24 text-[11px] font-medium text-muted">
               <span>2014</span>
-              <span>Today</span>
+              <span>{t("statsToday")}</span>
             </div>
           </Tile>
         )}
@@ -188,22 +190,22 @@ export function Stats({
         {/* wait gauge */}
         <Tile go={go} delay={0.08} className="bg-accent text-accent-ink">
           <div className="flex items-center justify-between">
-            <p className="text-[14px] font-medium text-accent-ink/80">Average wait</p>
+            <p className="text-[14px] font-medium text-accent-ink/80">{t("statsAvgWait")}</p>
             <Clock className="h-4 w-4 text-accent-ink/70" />
           </div>
           <div className="mt-auto flex flex-col items-center">
             <Gauge go={go} minutes={waitMinutes} cityAvg={Math.max(1, cityAvgWait)} />
             <p className="-mt-2 font-display text-[40px] font-semibold leading-none tracking-[-0.04em]">
               {waitMinutes}
-              <span className="text-[18px] font-medium"> min</span>
+              <span className="text-[18px] font-medium"> {t("statsMinutes")}</span>
             </p>
-            <p className="mt-1.5 text-[12px] text-accent-ink/70">City average: {cityAvgWait} min</p>
+            <p className="mt-1.5 text-[12px] text-accent-ink/70">{t("statsCityAvg", { n: cityAvgWait })}</p>
           </div>
         </Tile>
 
         {/* recommend ring */}
         <Tile go={go} delay={0.16} className="bg-white shadow-[inset_0_0_0_1px_var(--line)]">
-          <p className="text-[14px] font-medium text-muted">{pctStat?.label ?? "Would recommend us"}</p>
+          <p className="text-[14px] font-medium text-muted">{pctStat?.label ?? t("statsRecommendFallback")}</p>
           <div className="relative mt-auto grid place-items-center">
             <Ring go={go} pct={pctStat?.value ?? 98} />
             <span className="absolute font-display text-[30px] font-semibold tracking-[-0.04em]">

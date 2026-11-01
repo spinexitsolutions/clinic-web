@@ -52,7 +52,7 @@ export async function readDb(): Promise<Database> {
   db.settings = { ...seed.settings, ...parsed.settings };
   const headings = { ...seed.home.headings };
   for (const k of Object.keys(headings) as (keyof typeof headings)[]) headings[k] = { ...seed.home.headings[k], ...parsed.home?.headings?.[k] };
-  db.home = { ...seed.home, ...parsed.home, proof: { ...seed.home.proof, ...parsed.home?.proof }, headings };
+  db.home = { ...seed.home, ...parsed.home, proof: { ...seed.home.proof, ...parsed.home?.proof }, headings, labels: { ...seed.home.labels, ...parsed.home?.labels } };
   db.appearance.mega = { ...seed.appearance.mega, ...parsed.appearance?.mega };
   cache = { db, mtime: stat.mtimeMs };
   return db;

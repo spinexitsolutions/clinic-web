@@ -48,7 +48,7 @@ export function Process({ steps, heading }: { steps: HomeContent["process"]; hea
     <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
       <div className="lg:col-span-7">
         <p className="eyebrow flex items-center gap-3">
-          <span className="text-accent">03</span> <span className="h-px w-8 bg-line" /> {H.eyebrow}
+          {H.number && <span className="text-accent">{H.number}</span>} {H.number && <span className="h-px w-8 bg-line" />} {H.eyebrow}
         </p>
         <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
           <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.1} /></span>

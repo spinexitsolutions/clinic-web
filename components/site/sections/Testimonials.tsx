@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Img } from "../Img";
 import { heading as headingFor } from "@/lib/headings";
 import type { SectionHeading } from "@/lib/types";
+import { useLabels } from "../SiteContext";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -73,6 +74,7 @@ export function Testimonials({
   breakdown?: number[];
 }) {
   const H = headingFor("testimonials", heading);
+  const t = useLabels();
   const DIST = [5, 4, 3, 2, 1].map((stars, i) => ({ stars, pct: Math.max(0, Math.min(100, Number(breakdown[i]) || 0)) }));
   const ref = useRef<HTMLDivElement>(null);
   const go = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
@@ -103,7 +105,7 @@ export function Testimonials({
                     <Star key={k} className="h-4 w-4 fill-current" strokeWidth={0} />
                   ))}
                 </span>
-                <span className="mt-1.5 block text-[13px] text-bg/60">{reviewCount} Google reviews</span>
+                <span className="mt-1.5 block text-[13px] text-bg/60">{reviewCount} {t("reviewsSource")}</span>
               </span>
             </div>
             <ul className="mt-8 space-y-2.5">
@@ -124,7 +126,7 @@ export function Testimonials({
               ))}
             </ul>
             <p className="mt-8 border-t border-bg/10 pt-5 text-[13px] leading-relaxed text-bg/55">
-              Every review is from a verified visit. We reply to every single one — the good and the hard.
+              {t("reviewsNote")}
             </p>
           </div>
         </div>
