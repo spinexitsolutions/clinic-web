@@ -9,14 +9,15 @@ import { SplitWords } from "@/components/motion/Reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const STEPS = [
-  { icon: Home, title: "Home collection", text: "From 6 AM, at your door" },
-  { icon: FileText, title: "Reports in 6 hrs", text: "Straight to your phone" },
-  { icon: Stethoscope, title: "Doctor review", text: "Every number explained" },
+const STEP_ICONS = [Home, FileText, Stethoscope];
+const DEFAULT_STEPS = [
+  { title: "Home collection", text: "From 6 AM, at your door" },
+  { title: "Reports in 6 hrs", text: "Straight to your phone" },
+  { title: "Doctor review", text: "Every number explained" },
 ];
 
 /** "Compare checkups" explorer: tabs + one morphing detail panel. */
-export function PackageGrid({ packages, currency }: { packages: Package[]; currency: string }) {
+export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { packages: Package[]; currency: string; steps?: { title: string; text: string }[] }) {
   const sorted = [...packages].sort((a, b) => a.order - b.order);
   const initial = sorted.find((p) => p.highlighted)?.id ?? sorted[0]?.id;
   const [active, setActive] = useState(initial);
@@ -124,15 +125,18 @@ export function PackageGrid({ packages, currency }: { packages: Package[]; curre
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 1.2, ease, delay: 0.3 }}
                     />
-                    {STEPS.map((s) => (
-                      <li key={s.title} className="relative flex flex-col items-center text-center">
+                    {steps.slice(0, 3).map((s, k) => {
+                      const StepIcon = STEP_ICONS[k] ?? Stethoscope;
+                      return (
+                      <li key={s.title + k} className="relative flex flex-col items-center text-center">
                         <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-accent shadow-[inset_0_0_0_1px_var(--line)]">
-                          <s.icon className="h-4 w-4" />
+                          <StepIcon className="h-4 w-4" />
                         </span>
                         <span className="mt-3 text-[13px] font-semibold leading-tight">{s.title}</span>
                         <span className="mt-1 text-[12px] leading-tight text-muted">{s.text}</span>
                       </li>
-                    ))}
+                      );
+                    })}
                   </ol>
                 </div>
               </div>
@@ -144,7 +148,7 @@ export function PackageGrid({ packages, currency }: { packages: Package[]; curre
   );
 }
 
-export function Packages({ packages, currency }: { packages: Package[]; currency: string }) {
+export function Packages({ packages, currency, steps }: { packages: Package[]; currency: string; steps?: { title: string; text: string }[] }) {
   return (
     <section className="container-x py-20 md:py-32">
       <div className="mb-10 flex flex-col gap-4 md:mb-14 md:flex-row md:items-end md:justify-between">
@@ -156,7 +160,7 @@ export function Packages({ packages, currency }: { packages: Package[]; currency
         </div>
         <p className="max-w-sm text-[16px] leading-relaxed text-muted">Compare our checkups side by side. Every package includes a doctor who walks you through the results.</p>
       </div>
-      <PackageGrid packages={packages} currency={currency} />
+      <PackageGrid packages={packages} currency={currency} steps={steps} />
     </section>
   );
 }

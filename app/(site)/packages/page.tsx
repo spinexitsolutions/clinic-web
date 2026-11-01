@@ -19,7 +19,7 @@ export default async function PackagesPage() {
     <>
       <PageHeader eyebrow="Preventive care" title="Know your body" accent="before it tells you." description="Thoughtfully designed checkups that catch what matters early — with a doctor to walk you through every number." />
       <section className="container-x pb-20 md:pb-28">
-        <PackageGrid packages={[...db.packages].sort((a, b) => a.order - b.order)} currency={db.settings.currency} />
+        <PackageGrid packages={[...db.packages].sort((a, b) => a.order - b.order)} currency={db.settings.currency} steps={db.home.proof.packageSteps} />
       </section>
       <section className="container-x pb-24 md:pb-36">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

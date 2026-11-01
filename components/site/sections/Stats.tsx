@@ -125,11 +125,17 @@ export function Stats({
   stats,
   avatars = DEFAULT_AVATARS,
   waitMinutes = 7,
+  cityAvgWait = 35,
+  growthBadge = "+18% this year",
+  recommendSource = "Post-visit survey, last 12 months",
   accreditations = ["NABH Accredited", "NABL Certified Lab", "ISO 9001:2015"],
 }: {
   stats: HomeContent["stats"];
   avatars?: string[];
   waitMinutes?: number;
+  cityAvgWait?: number;
+  growthBadge?: string;
+  recommendSource?: string;
   accreditations?: string[];
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -162,7 +168,7 @@ export function Stats({
                 <p className="text-[14px] font-medium text-muted">{big.label}</p>
                 <Counter value={big.value} suffix={big.suffix} className="mt-2 block font-display text-[clamp(3rem,7vw,5.6rem)] font-semibold leading-none tracking-[-0.045em] tabular-nums" />
               </div>
-              <span className="rounded-full bg-accent-soft px-3 py-1 text-[12px] font-semibold text-accent">+18% this year</span>
+              {growthBadge && <span className="rounded-full bg-accent-soft px-3 py-1 text-[12px] font-semibold text-accent">{growthBadge}</span>}
             </div>
             <Sparkline go={go} />
             <div className="relative z-10 mt-auto flex justify-between pt-24 text-[11px] font-medium text-muted">
@@ -179,12 +185,12 @@ export function Stats({
             <Clock className="h-4 w-4 text-accent-ink/70" />
           </div>
           <div className="mt-auto flex flex-col items-center">
-            <Gauge go={go} minutes={waitMinutes} cityAvg={35} />
+            <Gauge go={go} minutes={waitMinutes} cityAvg={Math.max(1, cityAvgWait)} />
             <p className="-mt-2 font-display text-[40px] font-semibold leading-none tracking-[-0.04em]">
               {waitMinutes}
               <span className="text-[18px] font-medium"> min</span>
             </p>
-            <p className="mt-1.5 text-[12px] text-accent-ink/70">City average: 35 min</p>
+            <p className="mt-1.5 text-[12px] text-accent-ink/70">City average: {cityAvgWait} min</p>
           </div>
         </Tile>
 
@@ -197,7 +203,7 @@ export function Stats({
               <Counter value={pctStat?.value ?? 98} suffix="%" />
             </span>
           </div>
-          <p className="mt-4 text-center text-[12px] text-muted">Post-visit survey, last 12 months</p>
+          <p className="mt-4 text-center text-[12px] text-muted">{recommendSource}</p>
         </Tile>
 
         {/* team avatars */}

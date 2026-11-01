@@ -50,6 +50,7 @@ export async function readDb(): Promise<Database> {
   const db = { ...seed, ...parsed } as Database;
   db.appearance = { ...seed.appearance, ...parsed.appearance, intro: { ...seed.appearance.intro, ...parsed.appearance?.intro } };
   db.settings = { ...seed.settings, ...parsed.settings };
+  db.home = { ...seed.home, ...parsed.home, proof: { ...seed.home.proof, ...parsed.home?.proof } };
   cache = { db, mtime: stat.mtimeMs };
   return db;
 }

@@ -11,13 +11,13 @@ const text = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken", dis
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { settings } = await readDb();
+  const { settings, home } = await readDb();
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return {
     metadataBase: new URL(base),
     title: { default: `${settings.name} — ${settings.tagline}`, template: `%s · ${settings.name}` },
     description: settings.description,
-    openGraph: { title: settings.name, description: settings.description, type: "website", siteName: settings.name },
+    openGraph: { title: settings.name, description: settings.description, type: "website", siteName: settings.name, images: home.hero.image ? [home.hero.image] : undefined },
     twitter: { card: "summary_large_image", title: settings.name, description: settings.description },
   };
 }

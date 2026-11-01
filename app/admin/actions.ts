@@ -102,6 +102,14 @@ export async function saveHome(home: HomeContent): Promise<AdminResult> {
       ...home,
       stats: home.stats.map((st) => ({ ...st, value: Number(st.value) || 0 })),
       marquee: home.marquee.filter(Boolean),
+      proof: {
+        ...home.proof,
+        waitMinutes: Math.max(0, Number(home.proof.waitMinutes) || 0),
+        cityAvgWait: Math.max(1, Number(home.proof.cityAvgWait) || 1),
+        ratingBreakdown: [0, 1, 2, 3, 4].map((i) => Math.max(0, Math.min(100, Number(home.proof.ratingBreakdown?.[i]) || 0))),
+        principles: (home.proof.principles ?? []).filter((p) => p.value || p.label),
+        packageSteps: (home.proof.packageSteps ?? []).filter((p) => p.title || p.text).slice(0, 3),
+      },
     };
   });
   return done("Homepage saved");

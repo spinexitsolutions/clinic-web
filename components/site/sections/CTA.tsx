@@ -10,7 +10,7 @@ import { Img } from "../Img";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /** Final stage: one dark panel, three ways to reach care. */
-export function CTA({ cta, insurers }: { cta: HomeContent["cta"]; insurers: Insurance[] }) {
+export function CTA({ cta, insurers, insurersLabel = "30+ insurers" }: { cta: HomeContent["cta"]; insurers: Insurance[]; insurersLabel?: string }) {
   const { settings } = useSite();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start 0.25"] });
@@ -60,7 +60,7 @@ export function CTA({ cta, insurers }: { cta: HomeContent["cta"]; insurers: Insu
         <div className="container-x mb-12 flex items-center gap-6 md:mb-16">
           <p className="shrink-0 text-[12px] font-semibold uppercase leading-tight tracking-[0.14em] text-muted">
             Cashless with
-            <span className="block text-ink">30+ insurers</span>
+            <span className="block text-ink">{insurersLabel}</span>
           </p>
           <div className="flex min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
             <div className="animate-marquee flex shrink-0 items-center gap-10 pr-10" style={{ ["--marquee-duration" as string]: "32s" }}>

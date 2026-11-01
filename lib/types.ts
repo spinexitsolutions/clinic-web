@@ -95,8 +95,24 @@ export interface HomeContent {
   marquee: string[];
   statement: string;
   stats: { value: number; suffix: string; label: string }[];
-  process: { title: string; text: string; image: string }[];
+  process: { title: string; text: string; image: string; moment?: string; time?: string }[];
   cta: { title: string; subtitle: string; image: string };
+  /** Supporting numbers & copy shown across homepage sections. */
+  proof: HomeProof;
+}
+
+export interface HomeProof {
+  growthBadge: string; // stats: patients tile badge
+  waitMinutes: number; // stats: average wait gauge
+  cityAvgWait: number; // stats: comparison on the gauge
+  recommendSource: string; // stats: caption under recommend ring
+  reviewCount: string; // testimonials: "3,200+"
+  ratingBreakdown: number[]; // testimonials: % of 5★,4★,3★,2★,1★
+  insurersLabel: string; // final CTA: "30+ insurers"
+  principles: { value: string; label: string }[]; // philosophy: three small stats
+  signatureDoctorId: string; // philosophy: who signs the manifesto
+  signatureRole: string;
+  packageSteps: { title: string; text: string }[]; // packages: "what happens next"
 }
 
 export interface AboutContent {

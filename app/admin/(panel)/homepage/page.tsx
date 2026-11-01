@@ -5,5 +5,5 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const db = await readDb();
-  return <HomeEditor home={db.home} />;
+  return <HomeEditor home={db.home} doctors={db.doctors.map((d) => ({ id: d.id, name: d.name }))} />;
 }

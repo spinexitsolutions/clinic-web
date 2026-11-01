@@ -101,13 +101,13 @@ export function Process({ steps }: { steps: HomeContent["process"] }) {
                       >
                         {String(i + 1).padStart(2, "0")}
                       </motion.span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">{MOMENTS[i] ?? `Step ${i + 1}`}</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">{s.moment || MOMENTS[i] || `Step ${i + 1}`}</span>
                     </div>
                     <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-[calc(var(--radius)*0.8)] bg-accent-soft">
                       <motion.div className="absolute inset-0" animate={{ scale: on ? 1 : 1.15 }} transition={{ duration: 1.2, ease }}>
                         <Img src={s.image} alt={s.title} fill sizes="25vw" className="object-cover" />
                       </motion.div>
-                      <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[11.5px] font-semibold text-ink backdrop-blur">{TIMES[i] ?? ""}</span>
+                      <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[11.5px] font-semibold text-ink backdrop-blur">{s.time ?? TIMES[i] ?? ""}</span>
                     </div>
                     <h3 className="mt-5 font-display text-[24px] font-semibold leading-tight tracking-[-0.025em]">{s.title}</h3>
                     <p className="mt-2 text-[15px] leading-relaxed text-muted">{s.text}</p>
@@ -138,7 +138,7 @@ export function Process({ steps }: { steps: HomeContent["process"] }) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="pt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-                {MOMENTS[i] ?? `Step ${i + 1}`} · <span className="text-accent">{TIMES[i]}</span>
+                {s.moment || MOMENTS[i] || `Step ${i + 1}`} · <span className="text-accent">{s.time ?? TIMES[i]}</span>
               </p>
               <h3 className="mt-2 font-display text-[26px] font-semibold leading-tight tracking-[-0.025em]">{s.title}</h3>
               <p className="mt-2 text-[15.5px] leading-relaxed text-muted">{s.text}</p>

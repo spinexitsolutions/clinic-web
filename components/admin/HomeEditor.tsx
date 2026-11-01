@@ -12,10 +12,10 @@ import { FormFields, ImageInput, Label, StringList, type FieldDef } from "./fiel
 const HERO: FieldDef[] = [
   { key: "hero.eyebrow", label: "Eyebrow", type: "text" },
   { key: "hero.titleLine1", label: "Title — first line", type: "text", half: true },
-  { key: "hero.titleAccent", label: "Accent word (serif italic)", type: "text", half: true },
+  { key: "hero.titleAccent", label: "Accent word (highlighted)", type: "text", half: true },
   { key: "hero.titleLine2", label: "Title — last line", type: "text" },
   { key: "hero.subtitle", label: "Subtitle", type: "textarea", rows: 3 },
-  { key: "hero.image", label: "Hero image", type: "image" },
+  { key: "hero.image", label: "Social share image (link previews)", type: "image" },
   { key: "hero.primaryCta.label", label: "Primary button", type: "text", half: true },
   { key: "hero.primaryCta.href", label: "Primary link", type: "text", half: true },
   { key: "hero.secondaryCta.label", label: "Secondary button", type: "text", half: true },
@@ -30,9 +30,9 @@ const CTA: FieldDef[] = [
   { key: "cta.image", label: "Background image", type: "image" },
 ];
 
-type Tab = "layout" | "hero" | "story" | "process" | "cta";
+type Tab = "layout" | "hero" | "story" | "proof" | "process" | "cta";
 
-export function HomeEditor({ home }: { home: HomeContent }) {
+export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?: { id: string; name: string }[] }) {
   const router = useRouter();
   const { pending, run } = useAction();
   const [h, setH] = useState(home);
@@ -60,6 +60,7 @@ export function HomeEditor({ home }: { home: HomeContent }) {
             { value: "layout", label: "Sections" },
             { value: "hero", label: "Hero" },
             { value: "story", label: "Statement & numbers" },
+            { value: "proof", label: "Proof & details" },
             { value: "process", label: "How it works" },
             { value: "cta", label: "Final CTA" },
           ]}
@@ -130,6 +131,8 @@ export function HomeEditor({ home }: { home: HomeContent }) {
         </div>
       )}
 
+      {tab === "proof" && <ProofEditor proof={h.proof} doctors={doctors} onChange={(proof) => setH({ ...h, proof })} />}
+
       {tab === "process" && (
         <div className="grid gap-4 md:grid-cols-2">
           {h.process.map((p, i) => (
@@ -141,6 +144,10 @@ export function HomeEditor({ home }: { home: HomeContent }) {
                 </button>
               </div>
               <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <input value={p.moment ?? ""} onChange={(e) => setH({ ...h, process: h.process.map((x, k) => (k === i ? { ...x, moment: e.target.value } : x)) })} className="field h-11 text-sm" placeholder="Moment (e.g. At the door)" aria-label="Moment" />
+                  <input value={p.time ?? ""} onChange={(e) => setH({ ...h, process: h.process.map((x, k) => (k === i ? { ...x, time: e.target.value } : x)) })} className="field h-11 text-sm" placeholder="Time badge (e.g. < 7 min)" aria-label="Time badge" />
+                </div>
                 <input value={p.title} onChange={(e) => setH({ ...h, process: h.process.map((x, k) => (k === i ? { ...x, title: e.target.value } : x)) })} className="field" placeholder="Title" />
                 <textarea rows={3} value={p.text} onChange={(e) => setH({ ...h, process: h.process.map((x, k) => (k === i ? { ...x, text: e.target.value } : x)) })} className="field" placeholder="Description" />
                 <ImageInput value={p.image} onChange={(v) => setH({ ...h, process: h.process.map((x, k) => (k === i ? { ...x, image: v } : x)) })} />
@@ -162,6 +169,115 @@ export function HomeEditor({ home }: { home: HomeContent }) {
       )}
 
       <SaveBar pending={pending} dirty={dirty} onSave={() => run(() => saveHome(h), () => router.refresh())} />
+    </div>
+  );
+}
+
+function ProofEditor({ proof, doctors, onChange }: { proof: HomeContent["proof"]; doctors: { id: string; name: string }[]; onChange: (p: HomeContent["proof"]) => void }) {
+  const set = <K extends keyof HomeContent["proof"]>(k: K, v: HomeContent["proof"][K]) => onChange({ ...proof, [k]: v });
+  const rows = <T extends { [k: string]: string }>(key: "principles" | "packageSteps", list: T[], a: keyof T & string, b: keyof T & string, pa: string, pb: string, max: number) => (
+    <div className="space-y-2">
+      {list.map((row, i) => (
+        <div key={i} className="grid grid-cols-[1fr_1.6fr_36px] items-center gap-2">
+          <input value={row[a]} onChange={(e) => set(key, list.map((x, k) => (k === i ? { ...x, [a]: e.target.value } : x)) as never)} className="field h-11 text-sm" placeholder={pa} aria-label={pa} />
+          <input value={row[b]} onChange={(e) => set(key, list.map((x, k) => (k === i ? { ...x, [b]: e.target.value } : x)) as never)} className="field h-11 text-sm" placeholder={pb} aria-label={pb} />
+          <button onClick={() => set(key, list.filter((_, k) => k !== i) as never)} className="grid size-9 place-items-center rounded-full text-muted hover:bg-rose-50 hover:text-rose-600" aria-label="Remove">
+            <X className="size-4" />
+          </button>
+        </div>
+      ))}
+      {list.length < max && (
+        <button onClick={() => set(key, [...list, { [a]: "", [b]: "" }] as never)} className="btn btn-ghost h-10 text-sm">
+          <Plus className="size-4" /> Add
+        </button>
+      )}
+    </div>
+  );
+  const stars = ["5★", "4★", "3★", "2★", "1★"];
+  const total = proof.ratingBreakdown.reduce((s, n) => s + (Number(n) || 0), 0);
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-2">
+      <Card>
+        <SectionTitle hint="Signature and three small stats under the philosophy statement.">Philosophy</SectionTitle>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <Label>Signed by</Label>
+            <select value={proof.signatureDoctorId} onChange={(e) => set("signatureDoctorId", e.target.value)} className="field h-11 text-sm">
+              <option value="">— No signature —</option>
+              {doctors.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <Label>Their role</Label>
+            <input value={proof.signatureRole} onChange={(e) => set("signatureRole", e.target.value)} className="field h-11 text-sm" placeholder="Medical Director" />
+          </label>
+        </div>
+        <div className="mt-5">
+          <Label>Principles (value + label)</Label>
+          {rows("principles", proof.principles, "value", "label", "20–50", "minute consultations, never rushed", 3)}
+        </div>
+      </Card>
+
+      <Card>
+        <SectionTitle hint="Small details on the numbers tiles.">Numbers tiles</SectionTitle>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="col-span-2 block">
+            <Label>Patients tile badge</Label>
+            <input value={proof.growthBadge} onChange={(e) => set("growthBadge", e.target.value)} className="field h-11 text-sm" placeholder="+18% this year (leave empty to hide)" />
+          </label>
+          <label className="block">
+            <Label>Average wait (minutes)</Label>
+            <input type="number" min={0} value={proof.waitMinutes} onChange={(e) => set("waitMinutes", Number(e.target.value))} className="field h-11 text-sm" />
+          </label>
+          <label className="block">
+            <Label>City average wait (minutes)</Label>
+            <input type="number" min={1} value={proof.cityAvgWait} onChange={(e) => set("cityAvgWait", Number(e.target.value))} className="field h-11 text-sm" />
+          </label>
+          <label className="col-span-2 block">
+            <Label>Caption under “would recommend”</Label>
+            <input value={proof.recommendSource} onChange={(e) => set("recommendSource", e.target.value)} className="field h-11 text-sm" />
+          </label>
+        </div>
+      </Card>
+
+      <Card>
+        <SectionTitle hint="Rating summary beside the patient stories.">Reviews</SectionTitle>
+        <label className="block">
+          <Label>Review count</Label>
+          <input value={proof.reviewCount} onChange={(e) => set("reviewCount", e.target.value)} className="field h-11 text-sm" placeholder="3,200+" />
+        </label>
+        <div className="mt-5">
+          <Label hint={`total ${Math.round(total * 10) / 10}%`}>Star breakdown (%)</Label>
+          <div className="grid grid-cols-5 gap-2">
+            {stars.map((st, i) => (
+              <label key={st} className="block">
+                <span className="mb-1 block text-center text-xs text-muted">{st}</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  value={proof.ratingBreakdown[i] ?? 0}
+                  onChange={(e) => set("ratingBreakdown", stars.map((_, k) => (k === i ? Number(e.target.value) : Number(proof.ratingBreakdown[k]) || 0)))}
+                  className="field h-11 text-center text-sm"
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <SectionTitle hint="The 3-step strip inside the packages explorer.">Packages · what happens next</SectionTitle>
+        {rows("packageSteps", proof.packageSteps, "title", "text", "Home collection", "From 6 AM, at your door", 3)}
+        <label className="mt-6 block">
+          <Label>Insurers label (final section)</Label>
+          <input value={proof.insurersLabel} onChange={(e) => set("insurersLabel", e.target.value)} className="field h-11 text-sm" placeholder="30+ insurers" />
+        </label>
+      </Card>
     </div>
   );
 }

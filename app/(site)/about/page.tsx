@@ -13,13 +13,15 @@ export const metadata: Metadata = { title: "About us" };
 export default async function AboutPage() {
   const db = await readDb();
   const a = db.about;
+  const proof = db.home.proof;
+  const signer = db.doctors.find((d) => d.id === proof.signatureDoctorId);
   return (
     <>
       <PageHeader eyebrow={`About ${db.settings.shortName}`} title={a.title} description={a.intro} />
       <section className="px-3 md:px-5">
         <ParallaxImage src={a.image} alt="Inside Solace" priority className="h-[60svh] rounded-[var(--radius)] md:h-[85vh]" />
       </section>
-      <Statement text={a.story} />
+      <Statement text={a.story} label="Our story" signature={signer ? { name: signer.name, role: proof.signatureRole, image: signer.image } : null} principles={proof.principles} />
       <section className="container-x pb-20 md:pb-32">
         <p className="eyebrow mb-8">What we stand for</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -43,7 +45,7 @@ export default async function AboutPage() {
           ))}
         </div>
       </section>
-      <Stats stats={db.home.stats} />
+      <Stats stats={db.home.stats} avatars={db.doctors.map((d) => d.image)} accreditations={a.accreditations} waitMinutes={proof.waitMinutes} cityAvgWait={proof.cityAvgWait} growthBadge={proof.growthBadge} recommendSource={proof.recommendSource} />
       <section className="container-x grid gap-12 pb-24 md:grid-cols-[1fr_1.4fr] md:gap-20 md:pb-36">
         <div>
           <p className="eyebrow">Milestones</p>

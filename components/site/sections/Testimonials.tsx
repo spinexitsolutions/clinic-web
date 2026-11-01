@@ -53,24 +53,22 @@ function Column({ items, dir, duration }: { items: Testimonial[]; dir: "up" | "d
   );
 }
 
-const DIST = [
-  { stars: 5, pct: 89 },
-  { stars: 4, pct: 8 },
-  { stars: 3, pct: 2 },
-  { stars: 2, pct: 0.6 },
-  { stars: 1, pct: 0.4 },
-];
+const DEFAULT_BREAKDOWN = [89, 8, 2, 0.6, 0.4];
 
 /** Wall of voices: rating summary + endlessly drifting review columns. */
 export function Testimonials({
   items,
   rating = "4.9",
   reviewCount = "3,200+",
+  breakdown = DEFAULT_BREAKDOWN,
 }: {
   items: Testimonial[];
   rating?: string;
   reviewCount?: string;
+  /** percentages for 5★ → 1★ */
+  breakdown?: number[];
 }) {
+  const DIST = [5, 4, 3, 2, 1].map((stars, i) => ({ stars, pct: Math.max(0, Math.min(100, Number(breakdown[i]) || 0)) }));
   const ref = useRef<HTMLDivElement>(null);
   const go = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
   if (!items.length) return null;
