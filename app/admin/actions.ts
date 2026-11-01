@@ -84,13 +84,25 @@ export async function saveAppearance(appearance: Appearance): Promise<AdminResul
   return done("Appearance updated");
 }
 
-export async function saveNavigation(nav: Appearance["nav"], navCta: Appearance["navCta"]): Promise<AdminResult> {
+export async function saveNavigation(nav: Appearance["nav"], navCta: Appearance["navCta"], mega?: Appearance["mega"]): Promise<AdminResult> {
   await requireAdmin();
   await mutate((db) => {
     db.appearance.nav = nav
       .filter((n) => n.label.trim())
       .map((n) => ({ id: n.id || uid("n"), label: s(n.label, 40), href: s(n.href, 200) || "/", visible: !!n.visible }));
     db.appearance.navCta = { label: s(navCta.label, 40), href: s(navCta.href, 200) || "/book" };
+    if (mega) {
+      db.appearance.mega = {
+        servicesBadge: s(mega.servicesBadge, 40),
+        servicesTitle: s(mega.servicesTitle, 80),
+        servicesText: s(mega.servicesText, 200),
+        servicesHref: s(mega.servicesHref, 200) || "/book",
+        servicesLink: s(mega.servicesLink, 30) || "View all",
+        doctorsTitle: s(mega.doctorsTitle, 80),
+        doctorsText: s(mega.doctorsText, 200),
+        doctorsLink: s(mega.doctorsLink, 30) || "All doctors",
+      };
+    }
   });
   return done("Navigation saved");
 }

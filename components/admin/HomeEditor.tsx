@@ -7,6 +7,8 @@ import type { HomeContent } from "@/lib/types";
 import { saveHome } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
 import { Card, PageHeader, SaveBar, SectionTitle, Segmented, useAction } from "./ui";
+import { HEADING_FIELDS } from "@/lib/headings";
+import type { HeadingKey, SectionHeading } from "@/lib/types";
 import { FormFields, ImageInput, Label, StringList, type FieldDef } from "./fields";
 
 const HERO: FieldDef[] = [
@@ -30,7 +32,7 @@ const CTA: FieldDef[] = [
   { key: "cta.image", label: "Background image", type: "image" },
 ];
 
-type Tab = "layout" | "hero" | "story" | "proof" | "process" | "cta";
+type Tab = "layout" | "hero" | "headings" | "story" | "proof" | "process" | "cta";
 
 export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?: { id: string; name: string }[] }) {
   const router = useRouter();
@@ -59,6 +61,7 @@ export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?
           options={[
             { value: "layout", label: "Sections" },
             { value: "hero", label: "Hero" },
+            { value: "headings", label: "Headings" },
             { value: "story", label: "Statement & numbers" },
             { value: "proof", label: "Proof & details" },
             { value: "process", label: "How it works" },
@@ -130,6 +133,8 @@ export function HomeEditor({ home, doctors = [] }: { home: HomeContent; doctors?
           </Card>
         </div>
       )}
+
+      {tab === "headings" && <HeadingsEditor headings={h.headings} onChange={(headings) => setH({ ...h, headings })} />}
 
       {tab === "proof" && <ProofEditor proof={h.proof} doctors={doctors} onChange={(proof) => setH({ ...h, proof })} />}
 
@@ -273,11 +278,77 @@ function ProofEditor({ proof, doctors, onChange }: { proof: HomeContent["proof"]
       <Card>
         <SectionTitle hint="The 3-step strip inside the packages explorer.">Packages · what happens next</SectionTitle>
         {rows("packageSteps", proof.packageSteps, "title", "text", "Home collection", "From 6 AM, at your door", 3)}
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <label className="block">
+            <Label>Accreditation tile — text</Label>
+            <input value={proof.accreditation?.title ?? ""} onChange={(e) => set("accreditation", { ...proof.accreditation, title: e.target.value })} className="field h-11 text-sm" placeholder="Certified to the" />
+          </label>
+          <label className="block">
+            <Label>…highlighted part</Label>
+            <input value={proof.accreditation?.accent ?? ""} onChange={(e) => set("accreditation", { ...proof.accreditation, accent: e.target.value })} className="field h-11 text-sm" placeholder="highest national standards." />
+          </label>
+        </div>
         <label className="mt-6 block">
           <Label>Insurers label (final section)</Label>
           <input value={proof.insurersLabel} onChange={(e) => set("insurersLabel", e.target.value)} className="field h-11 text-sm" placeholder="30+ insurers" />
         </label>
       </Card>
+    </div>
+  );
+}
+
+const HEADING_SECTIONS: { key: HeadingKey; label: string; where: string }[] = [
+  { key: "marquee", label: "Specialties band", where: "Dark strip under the hero" },
+  { key: "statement", label: "Philosophy", where: "Label next to the big 01" },
+  { key: "services", label: "Specialties", where: "Use {count} to insert the number of specialties" },
+  { key: "stats", label: "Numbers", where: "Bento of stats" },
+  { key: "process", label: "Your visit", where: "ECG journey" },
+  { key: "doctors", label: "Care team", where: "Live doctor roster" },
+  { key: "packages", label: "Health checkups", where: "Package explorer" },
+  { key: "testimonials", label: "Patient stories", where: "Reviews wall" },
+  { key: "blog", label: "Journal", where: "Latest articles" },
+  { key: "faq", label: "FAQ", where: "Questions block" },
+  { key: "cta", label: "Final call-to-action", where: "Small label above the big title (title is in the Final CTA tab)" },
+];
+
+const FIELD_LABEL: Record<keyof SectionHeading, string> = {
+  eyebrow: "Small label",
+  title: "Title",
+  accent: "Highlighted words",
+  intro: "Intro text",
+  link: "Link text",
+};
+
+function HeadingsEditor({ headings, onChange }: { headings: HomeContent["headings"]; onChange: (h: HomeContent["headings"]) => void }) {
+  const set = (key: HeadingKey, field: keyof SectionHeading, v: string) => onChange({ ...headings, [key]: { ...headings[key], [field]: v } });
+  return (
+    <div className="grid gap-4 xl:grid-cols-2">
+      {HEADING_SECTIONS.map(({ key, label, where }) => {
+        const fields = HEADING_FIELDS[key];
+        const hd = headings[key];
+        return (
+          <Card key={key}>
+            <SectionTitle hint={where}>{label}</SectionTitle>
+            {fields.includes("title") && (
+              <p className="mb-4 rounded-xl bg-bg px-4 py-3 font-display text-[22px] font-semibold leading-tight tracking-[-0.03em]">
+                {hd.title} <span className="serif-accent text-accent">{hd.accent}</span>
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              {fields.map((f) => (
+                <label key={f} className={cn("block", (f === "intro" || f === "title" || f === "accent") && fields.includes("accent") ? (f === "intro" ? "col-span-2" : "col-span-2 sm:col-span-1") : "col-span-2 sm:col-span-1")}>
+                  <Label>{FIELD_LABEL[f]}</Label>
+                  {f === "intro" && key !== "marquee" ? (
+                    <textarea rows={2} value={hd[f]} onChange={(e) => set(key, f, e.target.value)} className="field text-sm" />
+                  ) : (
+                    <input value={hd[f]} onChange={(e) => set(key, f, e.target.value)} className="field h-11 text-sm" />
+                  )}
+                </label>
+              ))}
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 }

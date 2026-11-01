@@ -6,6 +6,8 @@ import { Counter } from "@/components/motion/Counter";
 import type { HomeContent } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Img } from "../Img";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 type Stat = HomeContent["stats"][number];
@@ -129,7 +131,11 @@ export function Stats({
   growthBadge = "+18% this year",
   recommendSource = "Post-visit survey, last 12 months",
   accreditations = ["NABH Accredited", "NABL Certified Lab", "ISO 9001:2015"],
+  accreditationTitle = { title: "Certified to the", accent: "highest national standards." },
+  heading,
 }: {
+  accreditationTitle?: { title: string; accent: string };
+  heading?: Partial<SectionHeading>;
   stats: HomeContent["stats"];
   avatars?: string[];
   waitMinutes?: number;
@@ -138,6 +144,7 @@ export function Stats({
   recommendSource?: string;
   accreditations?: string[];
 }) {
+  const H = headingFor("stats", heading);
   const ref = useRef<HTMLDivElement>(null);
   const go = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
 
@@ -151,12 +158,12 @@ export function Stats({
     <section className="container-x py-20 md:py-32">
       <div className="mb-10 flex flex-col gap-4 md:mb-14 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="eyebrow">In numbers</p>
+          <p className="eyebrow">{H.eyebrow}</p>
           <h2 className="mt-4 text-[clamp(2.3rem,5.4vw,4.6rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-            The quiet <span className="serif-accent text-accent">proof.</span>
+            {H.title} <span className="serif-accent text-accent">{H.accent}</span>
           </h2>
         </div>
-        <p className="max-w-sm text-[16px] leading-relaxed text-muted">A decade of measurable, patient-first care — tracked honestly and published openly.</p>
+        <p className="max-w-sm text-[16px] leading-relaxed text-muted">{H.intro}</p>
       </div>
 
       <div ref={ref} className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
@@ -253,7 +260,7 @@ export function Stats({
         <Tile go={go} delay={0.26} className="col-span-2 bg-ink text-bg">
           <div className="flex items-start justify-between gap-4">
             <p className="max-w-[18ch] font-display text-[26px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[32px]">
-              Certified to the <span className="serif-accent text-highlight">highest</span> national standards.
+              {accreditationTitle.title} <span className="serif-accent text-highlight">{accreditationTitle.accent}</span>
             </p>
             <BadgeCheck className="h-8 w-8 shrink-0 text-highlight" strokeWidth={1.5} />
           </div>

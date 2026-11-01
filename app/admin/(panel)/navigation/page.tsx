@@ -5,5 +5,5 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const db = await readDb();
-  return <NavigationEditor nav={db.appearance.nav} navCta={db.appearance.navCta} />;
+  return <NavigationEditor nav={db.appearance.nav} navCta={db.appearance.navCta} mega={db.appearance.mega} />;
 }

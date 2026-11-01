@@ -45,7 +45,7 @@ export default async function AboutPage() {
           ))}
         </div>
       </section>
-      <Stats stats={db.home.stats} avatars={db.doctors.map((d) => d.image)} accreditations={a.accreditations} waitMinutes={proof.waitMinutes} cityAvgWait={proof.cityAvgWait} growthBadge={proof.growthBadge} recommendSource={proof.recommendSource} />
+      <Stats stats={db.home.stats} avatars={db.doctors.map((d) => d.image)} accreditations={a.accreditations} waitMinutes={proof.waitMinutes} cityAvgWait={proof.cityAvgWait} growthBadge={proof.growthBadge} recommendSource={proof.recommendSource} accreditationTitle={proof.accreditation} heading={db.home.headings.stats} />
       <section className="container-x grid gap-12 pb-24 md:grid-cols-[1fr_1.4fr] md:gap-20 md:pb-36">
         <div>
           <p className="eyebrow">Milestones</p>

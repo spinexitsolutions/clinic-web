@@ -11,6 +11,7 @@ import { CommandPalette } from "./nav/CommandPalette";
 import { MobileDock } from "./nav/MobileDock";
 import type { NavData } from "./nav/types";
 import { cn, money, openStatus } from "@/lib/utils";
+import type { MegaMenuContent } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 type Mega = "services" | "doctors" | null;
@@ -194,7 +195,7 @@ export function Navbar({ data }: { data: NavData }) {
                     exit={{ opacity: 0, x: dir * -40 }}
                     transition={{ duration: 0.35, ease }}
                   >
-                    {mega === "services" ? <ServicesMega data={data} currency={settings.currency} /> : <DoctorsMega data={data} phone={settings.phone} />}
+                    {mega === "services" ? <ServicesMega data={data} currency={settings.currency} copy={appearance.mega} /> : <DoctorsMega data={data} phone={settings.phone} copy={appearance.mega} />}
                   </motion.div>
                 </AnimatePresence>
               </motion.div>
@@ -216,14 +217,14 @@ export function Navbar({ data }: { data: NavData }) {
   );
 }
 
-function ServicesMega({ data, currency }: { data: NavData; currency: string }) {
+function ServicesMega({ data, currency, copy }: { data: NavData; currency: string; copy: MegaMenuContent }) {
   const feature = data.services.find((s) => s.featured) ?? data.services[0];
   return (
     <div className="grid grid-cols-[1fr_300px] gap-2 p-2">
       <div className="p-4">
         <div className="mb-3 flex items-center justify-between px-2">
           <p className="eyebrow">Specialties · {data.services.length}</p>
-          <Link href="/services" className="text-[13px] font-medium text-accent hover:underline">View all →</Link>
+          <Link href="/services" className="text-[13px] font-medium text-accent hover:underline">{copy.servicesLink} →</Link>
         </div>
         <ul className="grid grid-cols-3 gap-1">
           {data.services.map((s, i) => (
@@ -242,15 +243,15 @@ function ServicesMega({ data, currency }: { data: NavData; currency: string }) {
         </ul>
       </div>
       {feature && (
-        <Link href="/book" className="group relative min-h-[280px] overflow-hidden rounded-[22px]">
+        <Link href={copy.servicesHref || "/book"} className="group relative min-h-[280px] overflow-hidden rounded-[22px]">
           <Img src={feature.image} alt="" fill sizes="300px" className="object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-5 text-white">
             <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-highlight px-2.5 py-1 text-[11px] font-semibold text-ink">
-              <span className="h-1.5 w-1.5 rounded-full bg-ink" /> Same-day slots
+              <span className="h-1.5 w-1.5 rounded-full bg-ink" /> {copy.servicesBadge}
             </span>
-            <p className="font-display text-[22px] font-semibold leading-tight tracking-[-0.02em]">Not sure where to start?</p>
-            <p className="mt-1 text-[13px] text-white/70">Book a general consult — we’ll route you to the right specialist.</p>
+            <p className="font-display text-[22px] font-semibold leading-tight tracking-[-0.02em]">{copy.servicesTitle}</p>
+            <p className="mt-1 text-[13px] text-white/70">{copy.servicesText}</p>
           </div>
         </Link>
       )}
@@ -258,13 +259,13 @@ function ServicesMega({ data, currency }: { data: NavData; currency: string }) {
   );
 }
 
-function DoctorsMega({ data, phone }: { data: NavData; phone: string }) {
+function DoctorsMega({ data, phone, copy }: { data: NavData; phone: string; copy: MegaMenuContent }) {
   return (
     <div className="grid grid-cols-[1fr_300px] gap-2 p-2">
       <div className="p-4">
         <div className="mb-3 flex items-center justify-between px-2">
           <p className="eyebrow">Our specialists</p>
-          <Link href="/doctors" className="text-[13px] font-medium text-accent hover:underline">All doctors →</Link>
+          <Link href="/doctors" className="text-[13px] font-medium text-accent hover:underline">{copy.doctorsLink} →</Link>
         </div>
         <ul className="grid grid-cols-2 gap-1">
           {data.doctors.slice(0, 6).map((d, i) => (
@@ -294,8 +295,8 @@ function DoctorsMega({ data, phone }: { data: NavData; phone: string }) {
           ))}
         </div>
         <div>
-          <p className="font-display text-[22px] font-semibold leading-tight tracking-[-0.02em]">Talk to our care team</p>
-          <p className="mt-1 text-[13px] text-bg/60">Tell us your symptoms — we’ll match you with the right doctor.</p>
+          <p className="font-display text-[22px] font-semibold leading-tight tracking-[-0.02em]">{copy.doctorsTitle}</p>
+          <p className="mt-1 text-[13px] text-bg/60">{copy.doctorsText}</p>
           <a href={`tel:${phone.replace(/\s/g, "")}`} className="mt-4 flex h-11 items-center justify-between rounded-full bg-highlight pl-4 pr-1.5 text-[14px] font-semibold text-ink">
             {phone}
             <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-highlight"><Phone className="h-3.5 w-3.5" /></span>

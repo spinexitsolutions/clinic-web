@@ -5,6 +5,8 @@ import type { HomeContent } from "@/lib/types";
 import { Img } from "../Img";
 import { SplitWords } from "@/components/motion/Reveal";
 import { cn } from "@/lib/utils";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const MOMENTS = ["Before you arrive", "At the door", "In the room", "After you leave"];
@@ -25,7 +27,8 @@ function ecgPath(n: number, w = 1000, h = 120) {
  * Patient journey — pinned on desktop. Scrolling draws a live ECG trace across
  * the screen; each heartbeat lights up a step of the visit.
  */
-export function Process({ steps }: { steps: HomeContent["process"] }) {
+export function Process({ steps, heading }: { steps: HomeContent["process"]; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("process", heading);
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const p = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
@@ -45,14 +48,14 @@ export function Process({ steps }: { steps: HomeContent["process"] }) {
     <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
       <div className="lg:col-span-7">
         <p className="eyebrow flex items-center gap-3">
-          <span className="text-accent">03</span> <span className="h-px w-8 bg-line" /> Your visit
+          <span className="text-accent">03</span> <span className="h-px w-8 bg-line" /> {H.eyebrow}
         </p>
         <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-          <SplitWords text="One visit," /> <span className="serif-accent text-accent"><SplitWords text="four heartbeats." delay={0.1} /></span>
+          <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.1} /></span>
         </h2>
       </div>
       <p className="max-w-sm text-[16px] leading-relaxed text-muted lg:col-span-4 lg:col-start-9">
-        We designed every minute of a Solace visit — from the moment you book to the call a week later.
+        {H.intro}
       </p>
     </div>
   );

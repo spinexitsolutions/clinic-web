@@ -7,6 +7,8 @@ import type { Doctor } from "@/lib/types";
 import { Img } from "../Img";
 import { Reveal, SplitWords } from "@/components/motion/Reveal";
 import { cn, money, timeLabel } from "@/lib/utils";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 export type NextSlots = Record<string, { date: string; time: string } | null>;
@@ -27,7 +29,8 @@ function whenLabel(n?: { date: string; time: string } | null) {
  * "On duty" board — the care team as a live roster with real next-free
  * slots. A portrait card trails the cursor across rows on desktop.
  */
-export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹" }: { doctors: Doctor[]; nextSlots?: NextSlots; currency?: string }) {
+export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹", heading }: { doctors: Doctor[]; nextSlots?: NextSlots; currency?: string; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("doctors", heading);
   const [hover, setHover] = useState<Doctor | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -40,16 +43,16 @@ export function DoctorsBoard({ doctors, nextSlots = {}, currency = "₹" }: { do
       <div className="mb-10 grid gap-6 md:mb-14 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-7">
           <p className="eyebrow flex items-center gap-3">
-            <span className="text-accent">04</span> <span className="h-px w-8 bg-line" /> Care team
+            <span className="text-accent">04</span> <span className="h-px w-8 bg-line" /> {H.eyebrow}
           </p>
           <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-            <SplitWords text="Specialists who" /> <span className="serif-accent text-accent"><SplitWords text="make time." delay={0.12} /></span>
+            <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.12} /></span>
           </h2>
         </div>
         <Reveal delay={0.1} className="flex items-center justify-between gap-6 lg:col-span-4 lg:col-start-9 lg:flex-col lg:items-start">
-          <p className="max-w-sm text-[16px] leading-relaxed text-muted">Availability below is live — pulled from each doctor’s calendar as you load the page.</p>
+          <p className="max-w-sm text-[16px] leading-relaxed text-muted">{H.intro}</p>
           <Link href="/doctors" className="btn btn-ghost shrink-0">
-            Meet everyone <ArrowUpRight className="h-4 w-4" />
+            {H.link} <ArrowUpRight className="h-4 w-4" />
           </Link>
         </Reveal>
       </div>

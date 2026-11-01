@@ -7,6 +7,8 @@ import type { FAQ as FAQItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useSite } from "../SiteContext";
 import { Img } from "../Img";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -72,7 +74,8 @@ const TEAM = [
 ];
 
 /** Home FAQ block: heading, category chips, refined list, and a care-team card. */
-export function FAQSection({ faqs, avatars = TEAM }: { faqs: FAQItem[]; avatars?: string[] }) {
+export function FAQSection({ faqs, avatars = TEAM, heading }: { faqs: FAQItem[]; avatars?: string[]; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("faq", heading);
   const { settings } = useSite();
   const cats = useMemo(() => ["All", ...Array.from(new Set(faqs.map((f) => f.category)))], [faqs]);
   const [cat, setCat] = useState("All");
@@ -83,9 +86,9 @@ export function FAQSection({ faqs, avatars = TEAM }: { faqs: FAQItem[]; avatars?
     <section className="container-x grid gap-12 py-20 md:py-32 lg:grid-cols-12 lg:gap-10">
       <div className="min-w-0 lg:col-span-4">
         <div className="lg:sticky lg:top-32">
-          <p className="eyebrow">Questions</p>
+          <p className="eyebrow">{H.eyebrow}</p>
           <h2 className="mt-4 text-[clamp(2.3rem,5vw,4.2rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-            Good to <span className="serif-accent text-accent">know.</span>
+            {H.title} <span className="serif-accent text-accent">{H.accent}</span>
           </h2>
 
           <div className="mt-10 rounded-[var(--radius)] bg-ink p-6 text-bg">
@@ -111,7 +114,7 @@ export function FAQSection({ faqs, avatars = TEAM }: { faqs: FAQItem[]; avatars?
             </div>
           </div>
           <Link href="/faq" className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-semibold text-accent hover:underline">
-            Browse all FAQs <ArrowUpRight className="h-4 w-4" />
+            {H.link} <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

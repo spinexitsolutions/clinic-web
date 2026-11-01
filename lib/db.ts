@@ -50,7 +50,10 @@ export async function readDb(): Promise<Database> {
   const db = { ...seed, ...parsed } as Database;
   db.appearance = { ...seed.appearance, ...parsed.appearance, intro: { ...seed.appearance.intro, ...parsed.appearance?.intro } };
   db.settings = { ...seed.settings, ...parsed.settings };
-  db.home = { ...seed.home, ...parsed.home, proof: { ...seed.home.proof, ...parsed.home?.proof } };
+  const headings = { ...seed.home.headings };
+  for (const k of Object.keys(headings) as (keyof typeof headings)[]) headings[k] = { ...seed.home.headings[k], ...parsed.home?.headings?.[k] };
+  db.home = { ...seed.home, ...parsed.home, proof: { ...seed.home.proof, ...parsed.home?.proof }, headings };
+  db.appearance.mega = { ...seed.appearance.mega, ...parsed.appearance?.mega };
   cache = { db, mtime: stat.mtimeMs };
   return db;
 }

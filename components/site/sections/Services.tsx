@@ -8,6 +8,8 @@ import { cn, money } from "@/lib/utils";
 import { Img } from "../Img";
 import { Icon } from "../Icon";
 import { Reveal, SplitWords } from "@/components/motion/Reveal";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const wipe = [0.76, 0, 0.24, 1] as const;
@@ -17,7 +19,8 @@ const wipe = [0.76, 0, 0.24, 1] as const;
  * image-led detail panel on the right (desktop). On phones each row expands
  * in place into an image card.
  */
-export function Services({ services, currency, doctors = [] }: { services: Service[]; currency: string; doctors?: Doctor[] }) {
+export function Services({ services, currency, doctors = [], heading }: { services: Service[]; currency: string; doctors?: Doctor[]; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("services", heading);
   const [active, setActiveRaw] = useState(0);
   const [layers, setLayers] = useState<{ id: number; i: number }[]>([{ id: 0, i: 0 }]);
   const setActive = (i: number) => {
@@ -35,18 +38,18 @@ export function Services({ services, currency, doctors = [] }: { services: Servi
       <div className="mb-12 grid gap-6 md:mb-16 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-7">
           <p className="eyebrow flex items-center gap-3">
-            <span className="text-accent">02</span> <span className="h-px w-8 bg-line" /> Specialties
+            <span className="text-accent">02</span> <span className="h-px w-8 bg-line" /> {H.eyebrow}
           </p>
           <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-            <SplitWords text="Every specialty," /> <span className="serif-accent text-accent"><SplitWords text="one calm roof." delay={0.12} /></span>
+            <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.12} /></span>
           </h2>
         </div>
         <Reveal delay={0.15} className="lg:col-span-4 lg:col-start-9">
           <p className="text-[16px] leading-relaxed text-muted">
-            {services.length} departments that share one record, one care team and one plan — so you never repeat your story twice.
+            {H.intro.replace("{count}", String(services.length))}
           </p>
           <Link href="/services" className="mt-5 inline-flex items-center gap-2 text-[14px] font-semibold text-accent">
-            Browse all specialties <ArrowUpRight className="h-4 w-4" />
+            {H.link} <ArrowUpRight className="h-4 w-4" />
           </Link>
         </Reveal>
       </div>

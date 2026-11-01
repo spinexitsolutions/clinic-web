@@ -6,11 +6,14 @@ import { ArrowUpRight, CalendarCheck, MessageCircle, Siren } from "lucide-react"
 import type { HomeContent, Insurance } from "@/lib/types";
 import { useSite } from "../SiteContext";
 import { Img } from "../Img";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /** Final stage: one dark panel, three ways to reach care. */
-export function CTA({ cta, insurers, insurersLabel = "30+ insurers" }: { cta: HomeContent["cta"]; insurers: Insurance[]; insurersLabel?: string }) {
+export function CTA({ cta, insurers, insurersLabel = "30+ insurers", heading }: { cta: HomeContent["cta"]; insurers: Insurance[]; insurersLabel?: string; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("cta", heading);
   const { settings } = useSite();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start 0.25"] });
@@ -93,7 +96,7 @@ export function CTA({ cta, insurers, insurersLabel = "30+ insurers" }: { cta: Ho
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Your next step
+              {H.eyebrow}
             </motion.p>
             <h2 className="mt-5 max-w-[11ch] text-[clamp(3rem,9vw,8.4rem)] font-semibold leading-[0.88] tracking-[-0.045em]">
               {words.map((w, i) => (

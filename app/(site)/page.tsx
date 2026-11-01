@@ -28,6 +28,7 @@ export default async function Home() {
   const posts = db.posts.filter((p) => p.published).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const faqs = byOrder(db.faqs).slice(0, 6);
   const proof = home.proof;
+  const hd = home.headings;
   const signer = doctors.find((d) => d.id === proof.signatureDoctorId);
 
   // real next free slot per doctor (from their schedule minus booked appointments)
@@ -57,17 +58,17 @@ export default async function Home() {
 
   const render: Record<HomeSectionKey, React.ReactNode> = {
     hero: <Hero hero={home.hero} slides={slides} stats={home.stats} />,
-    marquee: <Marquee items={home.marquee} />,
-    statement: <Statement text={home.statement} signature={signer ? { name: signer.name, role: proof.signatureRole, image: signer.image } : null} principles={proof.principles} />,
-    services: <Services services={services} currency={settings.currency} doctors={doctors} />,
-    stats: <Stats stats={home.stats} avatars={featuredDoctors.map((d) => d.image)} accreditations={db.about.accreditations} waitMinutes={proof.waitMinutes} cityAvgWait={proof.cityAvgWait} growthBadge={proof.growthBadge} recommendSource={proof.recommendSource} />,
-    process: <Process steps={home.process} />,
-    doctors: <Doctors doctors={featuredDoctors} nextSlots={nextSlots} currency={settings.currency} />,
-    packages: <Packages packages={byOrder(db.packages)} currency={settings.currency} steps={proof.packageSteps} />,
-    testimonials: <Testimonials items={db.testimonials.filter((t) => t.visible)} rating={home.hero.rating} reviewCount={proof.reviewCount} breakdown={proof.ratingBreakdown} />,
-    blog: <Journal posts={posts} />,
-    faq: <FAQSection faqs={faqs} avatars={featuredDoctors.map((d) => d.image)} />,
-    cta: <CTA cta={home.cta} insurers={db.insurers} insurersLabel={proof.insurersLabel} />,
+    marquee: <Marquee items={home.marquee} heading={hd.marquee} />,
+    statement: <Statement text={home.statement} label={hd.statement.eyebrow} signature={signer ? { name: signer.name, role: proof.signatureRole, image: signer.image } : null} principles={proof.principles} />,
+    services: <Services services={services} currency={settings.currency} doctors={doctors} heading={hd.services} />,
+    stats: <Stats stats={home.stats} avatars={featuredDoctors.map((d) => d.image)} accreditations={db.about.accreditations} waitMinutes={proof.waitMinutes} cityAvgWait={proof.cityAvgWait} growthBadge={proof.growthBadge} recommendSource={proof.recommendSource} accreditationTitle={proof.accreditation} heading={hd.stats} />,
+    process: <Process steps={home.process} heading={hd.process} />,
+    doctors: <Doctors doctors={featuredDoctors} nextSlots={nextSlots} currency={settings.currency} heading={hd.doctors} />,
+    packages: <Packages packages={byOrder(db.packages)} currency={settings.currency} steps={proof.packageSteps} heading={hd.packages} />,
+    testimonials: <Testimonials items={db.testimonials.filter((t) => t.visible)} rating={home.hero.rating} reviewCount={proof.reviewCount} breakdown={proof.ratingBreakdown} heading={hd.testimonials} />,
+    blog: <Journal posts={posts} heading={hd.blog} />,
+    faq: <FAQSection faqs={faqs} avatars={featuredDoctors.map((d) => d.image)} heading={hd.faq} />,
+    cta: <CTA cta={home.cta} insurers={db.insurers} insurersLabel={proof.insurersLabel} heading={hd.cta} />,
   };
 
   return <>{home.sections.filter((s) => s.visible).map((s) => <div key={s.key}>{render[s.key]}</div>)}</>;

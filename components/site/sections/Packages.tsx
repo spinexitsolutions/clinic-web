@@ -6,6 +6,8 @@ import { ArrowUpRight, Check, FileText, Home, Stethoscope } from "lucide-react";
 import type { Package } from "@/lib/types";
 import { cn, money } from "@/lib/utils";
 import { SplitWords } from "@/components/motion/Reveal";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -148,17 +150,18 @@ export function PackageGrid({ packages, currency, steps = DEFAULT_STEPS }: { pac
   );
 }
 
-export function Packages({ packages, currency, steps }: { packages: Package[]; currency: string; steps?: { title: string; text: string }[] }) {
+export function Packages({ packages, currency, steps, heading }: { packages: Package[]; currency: string; steps?: { title: string; text: string }[]; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("packages", heading);
   return (
     <section className="container-x py-20 md:py-32">
       <div className="mb-10 flex flex-col gap-4 md:mb-14 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="eyebrow">Health checkups</p>
+          <p className="eyebrow">{H.eyebrow}</p>
           <h2 className="mt-4 max-w-[16ch] text-[clamp(2.3rem,5.4vw,4.6rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-            <SplitWords text="Prevention," /> <span className="serif-accent text-accent"><SplitWords text="priced honestly." delay={0.1} /></span>
+            <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.1} /></span>
           </h2>
         </div>
-        <p className="max-w-sm text-[16px] leading-relaxed text-muted">Compare our checkups side by side. Every package includes a doctor who walks you through the results.</p>
+        <p className="max-w-sm text-[16px] leading-relaxed text-muted">{H.intro}</p>
       </div>
       <PackageGrid packages={packages} currency={currency} steps={steps} />
     </section>

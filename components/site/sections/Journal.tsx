@@ -7,6 +7,8 @@ import type { Post } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { Img } from "../Img";
 import { Reveal, SplitWords } from "@/components/motion/Reveal";
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -53,7 +55,8 @@ function Featured({ p }: { p: Post }) {
 }
 
 /** Editorial journal: one featured story, a numbered index with a cursor-follow preview. */
-export function Journal({ posts }: { posts: Post[] }) {
+export function Journal({ posts, heading }: { posts: Post[]; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("blog", heading);
   const [hover, setHover] = useState<Post | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -68,13 +71,13 @@ export function Journal({ posts }: { posts: Post[] }) {
     <section className="container-x py-20 md:py-32">
       <div className="mb-10 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="eyebrow">The journal</p>
+          <p className="eyebrow">{H.eyebrow}</p>
           <h2 className="mt-4 text-[clamp(2.3rem,5.4vw,4.6rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-            <SplitWords text="Notes from" /> <span className="serif-accent text-accent"><SplitWords text="our doctors." delay={0.1} /></span>
+            <SplitWords text={H.title} /> <span className="serif-accent text-accent"><SplitWords text={H.accent} delay={0.1} /></span>
           </h2>
         </div>
         <Link href="/blog" className="btn btn-ghost self-start md:self-auto">
-          Read the journal <ArrowUpRight className="h-4 w-4" />
+          {H.link} <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>
 

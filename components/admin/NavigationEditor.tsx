@@ -10,17 +10,18 @@ import { uid } from "@/lib/utils";
 import { Card, PageHeader, SaveBar, SectionTitle, useAction } from "./ui";
 import { Label, Toggle } from "./fields";
 
-export function NavigationEditor({ nav, navCta }: { nav: NavLink[]; navCta: Appearance["navCta"] }) {
+export function NavigationEditor({ nav, navCta, mega }: { nav: NavLink[]; navCta: Appearance["navCta"]; mega: Appearance["mega"] }) {
   const router = useRouter();
   const { pending, run } = useAction();
   const [links, setLinks] = useState(nav);
   const [cta, setCta] = useState(navCta);
-  const dirty = JSON.stringify([links, cta]) !== JSON.stringify([nav, navCta]);
+  const [mm, setMm] = useState(mega);
+  const dirty = JSON.stringify([links, cta, mm]) !== JSON.stringify([nav, navCta, mega]);
   const update = (id: string, patch: Partial<NavLink>) => setLinks((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
 
   return (
     <div>
-      <PageHeader eyebrow="Website" title="Navigation" description="Links in the floating navbar and full-screen menu. Drag to reorder." />
+      <PageHeader eyebrow="Website" title="Navigation" description="Links in the header, mobile dock menu and footer. Drag to reorder." />
       <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
         <Card>
           <SectionTitle>Menu links</SectionTitle>
@@ -51,6 +52,26 @@ export function NavigationEditor({ nav, navCta }: { nav: NavLink[]; navCta: Appe
             </div>
           </Card>
           <Card>
+            <SectionTitle hint="Text on the cards inside the Services and Doctors dropdowns.">Mega menu</SectionTitle>
+            <div className="space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">Services dropdown</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Badge</Label><input value={mm.servicesBadge} onChange={(e) => setMm({ ...mm, servicesBadge: e.target.value })} className="field h-11 text-sm" /></div>
+                <div><Label>“View all” link text</Label><input value={mm.servicesLink} onChange={(e) => setMm({ ...mm, servicesLink: e.target.value })} className="field h-11 text-sm" /></div>
+              </div>
+              <div><Label>Card title</Label><input value={mm.servicesTitle} onChange={(e) => setMm({ ...mm, servicesTitle: e.target.value })} className="field h-11 text-sm" /></div>
+              <div><Label>Card text</Label><textarea rows={2} value={mm.servicesText} onChange={(e) => setMm({ ...mm, servicesText: e.target.value })} className="field text-sm" /></div>
+              <div><Label>Card link</Label><input value={mm.servicesHref} onChange={(e) => setMm({ ...mm, servicesHref: e.target.value })} className="field h-11 text-sm" placeholder="/book" /></div>
+              <p className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted">Doctors dropdown</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2 sm:col-span-1"><Label>Card title</Label><input value={mm.doctorsTitle} onChange={(e) => setMm({ ...mm, doctorsTitle: e.target.value })} className="field h-11 text-sm" /></div>
+                <div className="col-span-2 sm:col-span-1"><Label>“All doctors” link text</Label><input value={mm.doctorsLink} onChange={(e) => setMm({ ...mm, doctorsLink: e.target.value })} className="field h-11 text-sm" /></div>
+              </div>
+              <div><Label>Card text</Label><textarea rows={2} value={mm.doctorsText} onChange={(e) => setMm({ ...mm, doctorsText: e.target.value })} className="field text-sm" /></div>
+              <p className="text-xs text-muted">The doctors card always shows the clinic phone number from Site settings.</p>
+            </div>
+          </Card>
+          <Card>
             <p className="eyebrow mb-4">Preview</p>
             <div className="glass-dark flex flex-wrap items-center gap-1 rounded-[22px] p-1.5 text-bg">
               <span className="grid size-8 place-items-center rounded-full bg-accent font-serif italic text-accent-ink">S</span>
@@ -64,7 +85,7 @@ export function NavigationEditor({ nav, navCta }: { nav: NavLink[]; navCta: Appe
           </Card>
         </div>
       </div>
-      <SaveBar pending={pending} dirty={dirty} onSave={() => run(() => saveNavigation(links, cta), () => router.refresh())} />
+      <SaveBar pending={pending} dirty={dirty} onSave={() => run(() => saveNavigation(links, cta, mm), () => router.refresh())} />
     </div>
   );
 }

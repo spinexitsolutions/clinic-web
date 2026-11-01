@@ -56,6 +56,7 @@ export interface Appearance {
   cursorFollower: boolean;
   nav: NavLink[];
   navCta: { label: string; href: string };
+  mega: MegaMenuContent;
 }
 
 export type HomeSectionKey =
@@ -99,6 +100,29 @@ export interface HomeContent {
   cta: { title: string; subtitle: string; image: string };
   /** Supporting numbers & copy shown across homepage sections. */
   proof: HomeProof;
+  /** Eyebrow / title / accent / intro / link text for every homepage section. */
+  headings: Record<HeadingKey, SectionHeading>;
+}
+
+export type HeadingKey = "marquee" | "statement" | "services" | "stats" | "process" | "doctors" | "packages" | "testimonials" | "blog" | "faq" | "cta";
+
+export interface SectionHeading {
+  eyebrow: string;
+  title: string;
+  accent: string; // highlighted words after the title
+  intro: string;
+  link: string; // label of the section's "see all" link
+}
+
+export interface MegaMenuContent {
+  servicesBadge: string;
+  servicesTitle: string;
+  servicesText: string;
+  servicesHref: string;
+  servicesLink: string;
+  doctorsTitle: string;
+  doctorsText: string;
+  doctorsLink: string;
 }
 
 export interface HomeProof {
@@ -113,6 +137,7 @@ export interface HomeProof {
   signatureDoctorId: string; // philosophy: who signs the manifesto
   signatureRole: string;
   packageSteps: { title: string; text: string }[]; // packages: "what happens next"
+  accreditation: { title: string; accent: string }; // stats: dark accreditation tile
 }
 
 export interface AboutContent {

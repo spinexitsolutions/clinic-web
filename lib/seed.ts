@@ -1,3 +1,4 @@
+import { DEFAULT_HEADINGS, DEFAULT_MEGA } from "./headings";
 import type { Appointment, AppointmentStatus, Database, Lead, LeadStage, Patient } from "./types";
 
 const U = (id: string) => `https://images.unsplash.com/photo-${id}`;
@@ -473,6 +474,7 @@ export function createSeed(): Database {
         { id: "n7", label: "FAQ", href: "/faq", visible: false },
       ],
       navCta: { label: "Book a visit", href: "/book" },
+      mega: { ...DEFAULT_MEGA },
     },
     home: {
       sections: [
@@ -537,7 +539,9 @@ export function createSeed(): Database {
           { title: "Reports in 6 hrs", text: "Straight to your phone" },
           { title: "Doctor review", text: "Every number explained" },
         ],
+        accreditation: { title: "Certified to the", accent: "highest national standards." },
       },
+      headings: structuredClone(DEFAULT_HEADINGS),
       cta: {
         title: "Feel better, sooner.",
         subtitle: "Same-day appointments across every specialty. Most visits start on time.",

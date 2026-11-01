@@ -1,5 +1,8 @@
+import { heading as headingFor } from "@/lib/headings";
+import type { SectionHeading } from "@/lib/types";
 /** Slim specialties band: fixed label, items ticking past behind an edge fade. */
-export function Marquee({ items }: { items: string[] }) {
+export function Marquee({ items, heading }: { items: string[]; heading?: Partial<SectionHeading> }) {
+  const H = headingFor("marquee", heading);
   if (!items.length) return null;
   const list = [...items, ...items];
   return (
@@ -11,8 +14,8 @@ export function Marquee({ items }: { items: string[] }) {
               {items.length}
             </span>
             <span className="text-[12px] font-semibold uppercase leading-tight tracking-[0.14em] md:text-[13px]">
-              Specialties
-              <span className="hidden font-normal normal-case tracking-normal text-accent-ink/70 md:block">under one roof</span>
+              {H.eyebrow}
+              {H.intro && <span className="hidden font-normal normal-case tracking-normal text-accent-ink/70 md:block">{H.intro}</span>}
             </span>
           </span>
         </div>
