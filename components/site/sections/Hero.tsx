@@ -1,354 +1,319 @@
 "use client";
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, animate, motion, useMotionValue, useScroll, useTransform, type AnimationPlaybackControls } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, ChevronDown, Star } from "lucide-react";
+import { ArrowUpRight, CalendarClock, Star } from "lucide-react";
 import type { Doctor, HomeContent, Service } from "@/lib/types";
 import { useIntroDone } from "@/components/motion/Intro";
-import { Magnetic } from "@/components/motion/Magnetic";
 import { useSite } from "../SiteContext";
-import { Icon } from "../Icon";
 import { Img } from "../Img";
-import { cn, openStatus } from "@/lib/utils";
+import { cn, openStatus, timeLabel } from "@/lib/utils";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const spring = { type: "spring", stiffness: 70, damping: 16, mass: 0.9 } as const;
+const slatEase = [0.76, 0, 0.24, 1] as const;
+const SLATS = 7;
+const DURATION = 6; // seconds per specialty
 
-/* ── building blocks ─────────────────────────────────────── */
+export type HeroSlide = {
+  service: Service;
+  doctor: Doctor | null;
+  next: { date: string; time: string } | null;
+};
 
-function Words({ text, go, delay, className }: { text: string; go: boolean; delay: number; className?: string }) {
+function nextLabel(next: HeroSlide["next"]) {
+  if (!next) return "Call to book";
+  const d = new Date(next.date + "T00:00:00");
+  const t = new Date();
+  const today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+  const diff = Math.round((d.getTime() - today.getTime()) / 864e5);
+  const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  return `${day} · ${timeLabel(next.time)}`;
+}
+
+/** New image arrives through vertical "window-blind" slats. */
+function Blinds({ src, first }: { src: string; first: boolean }) {
+  if (first) {
+    return (
+      <motion.div className="absolute inset-0" initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: DURATION + 2, ease: "linear" }}>
+        <Img src={src} alt="" fill priority sizes="100vw" className="object-cover" />
+      </motion.div>
+    );
+  }
   return (
-    <>
-      {text.split(" ").map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden pb-[0.06em] -mb-[0.06em] align-bottom">
-          <motion.span
-            className={cn("inline-block", className)}
-            initial={{ y: "108%" }}
-            animate={go ? { y: "0%" } : undefined}
-            transition={{ duration: 1.25, ease, delay: delay + i * 0.07 }}
+    <div className="absolute inset-0">
+      {Array.from({ length: SLATS }).map((_, i) => {
+        const l = (i * 100) / SLATS;
+        const r = 100 - ((i + 1) * 100) / SLATS;
+        return (
+          <motion.div
+            key={i}
+            className="absolute inset-0"
+            initial={{ clipPath: `inset(100% ${r}% 0% ${l}%)` }}
+            animate={{ clipPath: `inset(0% ${r - 0.05}% 0% ${l}%)` }}
+            transition={{ duration: 1.15, ease: slatEase, delay: i * 0.055 }}
           >
-            {w}
-          </motion.span>
-        </span>
-      ))}
-    </>
+            <motion.div className="absolute inset-0" initial={{ scale: 1.18 }} animate={{ scale: 1 }} transition={{ duration: DURATION + 2, ease: "linear" }}>
+              <Img src={src} alt="" fill sizes="100vw" className="object-cover" />
+            </motion.div>
+          </motion.div>
+        );
+      })}
+    </div>
   );
 }
 
-/** Inline capsule that grows out of the headline. */
-function Pill({ go, delay, className, children, hover = true }: { go: boolean; delay: number; className?: string; children: React.ReactNode; hover?: boolean }) {
-  return (
-    <motion.span
-      className={cn("relative inline-flex h-[0.74em] shrink-0 items-center overflow-hidden rounded-full align-middle", className)}
-      initial={{ width: 0, opacity: 0 }}
-      animate={go ? { width: "auto", opacity: 1 } : undefined}
-      transition={{ width: { ...spring, delay }, opacity: { duration: 0.3, delay } }}
-      whileHover={hover ? { scale: 1.04 } : undefined}
-    >
-      {children}
-    </motion.span>
-  );
-}
-
-/** Live "patient monitor" — an endless ECG trace. */
-function EcgPill({ go, delay }: { go: boolean; delay: number }) {
-  return (
-    <Pill go={go} delay={delay} className="bg-accent">
-      <span className="relative block h-full w-[1.55em] overflow-hidden">
-        <span className="absolute inset-y-0 left-0 flex w-[200%] items-center" style={{ animation: "marquee 2.4s linear infinite" }}>
-          {[0, 1].map((k) => (
-            <svg key={k} viewBox="0 0 120 40" className="h-[70%] w-1/2" preserveAspectRatio="none" aria-hidden>
-              <path d="M0 20 H18 L22 14 L26 26 L31 4 L36 34 L40 20 H78 L82 14 L86 26 L91 4 L96 34 L100 20 H120" fill="none" stroke="var(--highlight)" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-            </svg>
-          ))}
-        </span>
-        <span className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-accent to-transparent" />
-      </span>
-    </Pill>
-  );
-}
-
-function ImagePill({ go, delay, src }: { go: boolean; delay: number; src: string }) {
-  return (
-    <Pill go={go} delay={delay} className="bg-accent-soft">
-      <span className="relative block h-full w-[1.9em]">
-        <motion.span className="absolute inset-0" initial={{ scale: 1.5 }} animate={go ? { scale: 1 } : undefined} transition={{ duration: 1.8, ease, delay }}>
-          <Img src={src} alt="" fill priority sizes="300px" className="object-cover" />
-        </motion.span>
-      </span>
-    </Pill>
-  );
-}
-
-function AvatarPill({ go, delay, doctors }: { go: boolean; delay: number; doctors: Doctor[] }) {
-  return (
-    <Pill go={go} delay={delay} className="bg-white shadow-[inset_0_0_0_1px_var(--line)]">
-      <span className="flex items-center gap-[0.08em] whitespace-nowrap py-[0.08em] pl-[0.09em] pr-[0.2em]">
-        <span className="flex -space-x-[0.16em]">
-          {doctors.slice(0, 3).map((d) => (
-            <span key={d.id} className="relative block h-[0.56em] w-[0.56em] overflow-hidden rounded-full ring-[0.04em] ring-white">
-              <Img src={d.image} alt="" fill sizes="80px" className="object-cover" />
-            </span>
-          ))}
-        </span>
-        <span className="pl-[0.08em] text-[0.24em] font-semibold leading-none tracking-[-0.02em] text-ink">
-          24<span className="text-accent">+</span>
-          <span className="block text-[0.62em] font-medium tracking-normal text-muted">doctors</span>
-        </span>
-      </span>
-    </Pill>
-  );
-}
-
-function LiveClock() {
+function LiveStatus() {
   const { settings } = useSite();
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 15_000);
+    const id = setInterval(() => setNow(new Date()), 20_000);
     return () => clearInterval(id);
   }, []);
-  if (!now) return <span className="opacity-0">--:--</span>;
+  if (!now) return null;
   const st = openStatus(settings.hours, now);
   return (
-    <span className="inline-flex items-center gap-2">
-      <span className="tabular-nums text-ink">{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })} IST</span>
-      <span className="h-3 w-px bg-line" />
-      <span className={cn("pulse-dot relative h-1.5 w-1.5 rounded-full", st.open ? "bg-accent text-accent" : "bg-coral text-coral")} />
+    <span className="flex items-center gap-2.5">
+      <span className={cn("pulse-dot relative h-1.5 w-1.5 rounded-full", st.open ? "bg-highlight text-highlight" : "bg-coral text-coral")} />
       <span>{st.open ? "Open now" : st.label}</span>
+      <span className="h-3 w-px bg-white/25" />
+      <span className="tabular-nums">{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })} IST</span>
     </span>
   );
 }
 
-function QuickBook({ services, go }: { services: Service[]; go: boolean }) {
-  const router = useRouter();
-  const [svc, setSvc] = useState(services[0]?.id ?? "");
-  const [when, setWhen] = useState<"today" | "tomorrow" | "week">("today");
-  const current = services.find((s) => s.id === svc);
-  return (
-    <motion.form
-      onSubmit={(e) => {
-        e.preventDefault();
-        router.push(`/book?service=${svc}`);
-      }}
-      initial={{ opacity: 0, y: 30 }}
-      animate={go ? { opacity: 1, y: 0 } : undefined}
-      transition={{ duration: 1.1, ease, delay: 0.75 }}
-      className="relative rounded-[calc(var(--radius)*0.9)] bg-white p-2 shadow-[0_30px_60px_-30px_rgba(12,13,18,0.25),inset_0_0_0_1px_var(--line)]"
-    >
-      <div className="flex items-center justify-between px-3 pb-2 pt-1.5">
-        <span className="eyebrow !text-[10px]">Quick booking</span>
-        <span className="flex items-center gap-1.5 text-[11px] font-medium text-accent">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" /> 38 slots open today
-        </span>
-      </div>
-      <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-        <label className="relative flex h-14 items-center gap-3 rounded-[calc(var(--radius)*0.6)] bg-bg px-3">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent text-accent-ink">
-            <Icon name={current?.icon ?? "Stethoscope"} className="h-4 w-4" strokeWidth={2} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[11px] text-muted">I need help with</span>
-            <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">{current?.name}</span>
-          </span>
-          <ChevronDown className="h-4 w-4 text-muted" />
-          <select aria-label="Specialty" value={svc} onChange={(e) => setSvc(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0">
-            {services.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-        </label>
-        <div className="flex h-14 items-center gap-1 rounded-[calc(var(--radius)*0.6)] bg-bg p-1">
-          {(["today", "tomorrow", "week"] as const).map((w) => (
-            <button
-              type="button"
-              key={w}
-              onClick={() => setWhen(w)}
-              className={cn("relative h-full flex-1 whitespace-nowrap rounded-[calc(var(--radius)*0.45)] px-2 text-[12px] font-medium capitalize transition-colors sm:flex-none sm:px-3 sm:text-[13px]", when === w ? "text-ink" : "text-muted hover:text-ink")}
-            >
-              {when === w && <motion.span layoutId="qb-when" className="absolute inset-0 rounded-[calc(var(--radius)*0.45)] bg-white shadow-sm" transition={{ duration: 0.5, ease }} />}
-              <span className="relative">{w === "week" ? "Week" : w}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <button className="group mt-2 flex h-14 w-full items-center justify-between rounded-[calc(var(--radius)*0.6)] bg-ink pl-5 pr-2 text-[15px] font-semibold text-bg transition-colors duration-500 hover:bg-accent">
-        Find my slot
-        <span className="grid h-10 w-10 place-items-center rounded-full bg-highlight text-ink transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-rotate-45">
-          <ArrowRight className="h-4 w-4" />
-        </span>
-      </button>
-    </motion.form>
-  );
-}
-
-/* ── hero ─────────────────────────────────────────────────── */
-
-export function Hero({ hero, doctors, services }: { hero: HomeContent["hero"]; doctors: Doctor[]; services: Service[] }) {
+export function Hero({ hero, slides, stats }: { hero: HomeContent["hero"]; slides: HeroSlide[]; stats: HomeContent["stats"] }) {
   const go = useIntroDone();
+  const [i, setI] = useState(0);
+  const [history, setHistory] = useState<{ n: number; id: number }[]>([{ n: 0, id: 0 }]);
+  const [paused, setPaused] = useState(false);
+  const progress = useMotionValue(0);
+  const ctrl = useRef<AnimationPlaybackControls | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // cursor spotlight
-  const mx = useMotionValue(-1000);
-  const my = useMotionValue(-1000);
-  const sx = useSpring(mx, { stiffness: 60, damping: 20 });
-  const sy = useSpring(my, { stiffness: 60, damping: 20 });
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const frameScale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const dim = useTransform(scrollYProgress, [0, 0.9], [0, 0.6]);
 
-  // gentle exit as you scroll past
-  const { scrollYProgress: out } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
-  const headY = useTransform(out, [0, 1], [0, -120]);
-  const headO = useTransform(out, [0, 0.8], [1, 0.2]);
+  const select = (n: number) => {
+    if (n === i) return;
+    setI(n);
+    setHistory((h) => [...h.slice(-1), { n, id: h[h.length - 1].id + 1 }]);
+  };
 
-  // scroll-zoom showcase
-  const zoomRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: zoomRef, offset: ["start end", "end end"] });
-  const width = useTransform(scrollYProgress, [0, 0.75], ["74%", "100%"]);
-  const radius = useTransform(scrollYProgress, [0, 0.75], [999, 0]);
-  const zoomH = useTransform(scrollYProgress, [0, 0.75], ["38svh", "100svh"]);
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1.35, 1]);
-  const overlay = useTransform(scrollYProgress, [0.5, 0.9], [0, 1]);
-  const overlayY = useTransform(scrollYProgress, [0.5, 0.9], [60, 0]);
+  // auto-advance with a visible progress bar, pausable on hover
+  useEffect(() => {
+    if (!go || slides.length < 2) return;
+    progress.set(0);
+    ctrl.current = animate(progress, 1, {
+      duration: DURATION,
+      ease: "linear",
+      onComplete: () => select((i + 1) % slides.length),
+    });
+    return () => ctrl.current?.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i, go, slides.length]);
+
+  useEffect(() => {
+    if (paused) ctrl.current?.pause();
+    else ctrl.current?.play();
+  }, [paused]);
+
+  const slide = slides[i];
+  const bar = useTransform(progress, (v) => `${v * 100}%`);
+  if (!slide) return null;
 
   return (
-    <>
-      <section
-        ref={sectionRef}
-        onPointerMove={(e) => {
-          if (e.pointerType !== "mouse") return;
-          const r = e.currentTarget.getBoundingClientRect();
-          mx.set(e.clientX - r.left);
-          my.set(e.clientY - r.top);
-        }}
-        className="relative flex min-h-[calc(100svh-2.5rem)] flex-col overflow-hidden pb-5 pt-[104px] md:pb-7 md:pt-[120px]"
+    <section ref={sectionRef} className="relative px-2 pt-2 md:px-3 md:pt-3">
+      <motion.div
+        style={{ scale: frameScale }}
+        className="relative h-[calc(100svh-3.5rem)] min-h-[640px] origin-top overflow-hidden rounded-[calc(var(--radius)*1.15)] bg-ink text-white md:h-[calc(100svh-3.75rem)]"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
       >
-        {/* cursor spotlight */}
+        {/* image stack: last two stay mounted so slats reveal over the previous photo */}
+        <div className="absolute inset-0 isolate">
+          {history.map((h) => (
+            <div key={h.id} className="absolute inset-0" style={{ zIndex: h.id }}>
+              <Blinds src={slides[h.n].service.image} first={h.id === 0} />
+            </div>
+          ))}
+        </div>
+
+        {/* legibility */}
+        <div className="pointer-events-none absolute inset-0 bg-[#080a12]/35" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(8,9,14,0.55)_0%,rgba(8,9,14,0.05)_28%,rgba(8,9,14,0.15)_55%,rgba(8,9,14,0.92)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,9,14,0.6)_0%,rgba(8,9,14,0)_55%,rgba(8,9,14,0.45)_100%)]" />
+        <motion.div style={{ opacity: dim }} className="pointer-events-none absolute inset-0 bg-ink" />
+
+        {/* curtain-up on load */}
         <motion.div
-          aria-hidden
-          className="pointer-events-none absolute left-0 top-0 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{ x: sx, y: sy, background: "radial-gradient(circle, color-mix(in oklab, var(--accent) 16%, transparent), transparent 62%)" }}
+          className="pointer-events-none absolute inset-0 z-30 origin-top bg-bg"
+          initial={{ scaleY: 1 }}
+          animate={go ? { scaleY: 0 } : undefined}
+          transition={{ duration: 1.2, ease: slatEase }}
         />
 
-        {/* editorial column guides */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="container-x relative h-full">
-            {[0, 25, 50, 75, 100].map((p, i) => (
-              <motion.span
-                key={p}
-                className={cn("absolute top-0 h-full w-px origin-top bg-line", (p === 25 || p === 75) && "hidden md:block")}
-                style={{ left: `calc(${p}% ${p === 0 ? "+ 1.25rem" : p === 100 ? "- 1.25rem" : ""})` }}
-                initial={{ scaleY: 0 }}
-                animate={go ? { scaleY: 1 } : undefined}
-                transition={{ duration: 1.6, ease, delay: i * 0.06 }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <motion.div style={{ y: headY, opacity: headO }} className="container-x relative flex flex-1 flex-col">
-          {/* meta row */}
+        <motion.div style={{ y: contentY }} className="relative z-20 flex h-full flex-col px-5 pb-5 pt-[88px] md:px-10 md:pb-8 md:pt-[104px]">
+          {/* meta */}
           <motion.div
-            className="grid grid-cols-2 items-center gap-4 border-b border-line pb-4 text-[12px] font-medium text-muted md:grid-cols-4"
-            initial={{ opacity: 0 }}
-            animate={go ? { opacity: 1 } : undefined}
-            transition={{ duration: 1, delay: 0.1 }}
+            className="flex items-center justify-between text-[12px] font-medium text-white/75"
+            initial={{ opacity: 0, y: -10 }}
+            animate={go ? { opacity: 1, y: 0 } : undefined}
+            transition={{ duration: 0.9, ease, delay: 0.7 }}
           >
-            <span className="flex items-center gap-2">
-              <span className="grid h-5 min-w-5 place-items-center rounded-full bg-ink px-1.5 text-[10px] font-semibold text-bg">01</span>
-              {hero.eyebrow.split("·")[0].trim()}
-            </span>
-            <span className="hidden md:block">{hero.eyebrow.split("·")[1]?.trim() ?? "Bengaluru"}</span>
-            <span className="hidden md:block">Since 2014 · NABH accredited</span>
-            <span className="justify-self-end"><LiveClock /></span>
+            <span className="hidden sm:block">{hero.eyebrow}</span>
+            <LiveStatus />
           </motion.div>
 
-          {/* headline */}
-          <h1 className="mt-8 font-display text-[clamp(3rem,14.5vw,10rem)] font-semibold leading-[0.9] tracking-[-0.04em] sm:text-[clamp(3rem,9.4vw,11rem)] md:mt-10">
-            <span className="flex flex-wrap items-center gap-x-[0.18em]">
-              <Words text={hero.titleLine1} go={go} delay={0.05} />
-              <ImagePill go={go} delay={0.7} src={hero.image} />
-            </span>
-            <span className="flex flex-wrap items-center gap-x-[0.16em] lg:pl-[1.1em]">
-              <EcgPill go={go} delay={0.85} />
-              <Words text={hero.titleAccent} go={go} delay={0.18} className="serif-accent pr-[0.04em] tracking-[-0.03em] text-accent" />
-              <span className="hidden sm:inline-flex">
-                <AvatarPill go={go} delay={1} doctors={doctors} />
-              </span>
-            </span>
-            <span className="flex flex-wrap items-center gap-x-[0.2em] lg:justify-end">
-              <Words text={hero.titleLine2} go={go} delay={0.3} />
-            </span>
-          </h1>
+          <div className="mt-auto grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-10">
+            {/* left: message */}
+            <div className="lg:col-span-7">
+              <div className="mb-5 flex items-center gap-3 overflow-hidden text-[13px] font-medium">
+                <span className="rounded-full bg-white/12 px-3 py-1 text-white/70 backdrop-blur-md">Now viewing</span>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={slide.service.id}
+                    initial={{ y: 18, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -18, opacity: 0 }}
+                    transition={{ duration: 0.5, ease }}
+                    className="text-highlight"
+                  >
+                    {slide.service.name}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
 
-          {/* bottom band */}
-          <div className="mt-10 grid gap-8 md:mt-auto md:pt-8 lg:grid-cols-12 lg:items-end lg:gap-6">
-            <motion.div
-              className="lg:col-span-4"
-              initial={{ opacity: 0, y: 24 }}
-              animate={go ? { opacity: 1, y: 0 } : undefined}
-              transition={{ duration: 1.1, ease, delay: 0.6 }}
-            >
-              <p className="max-w-[34ch] text-[17px] leading-[1.55] text-ink/70">{hero.subtitle}</p>
-              <div className="mt-6 flex flex-wrap items-center gap-2">
-                <Magnetic>
-                  <Link href={hero.primaryCta.href} className="btn btn-accent h-13 px-6">
+              <h1 className="font-display text-[clamp(2.9rem,7.2vw,7.4rem)] font-semibold leading-[0.93] tracking-[-0.035em]">
+                {[hero.titleLine1, hero.titleAccent, hero.titleLine2].map((line, k) => (
+                  <span key={k} className="block overflow-hidden pb-[0.05em]">
+                    <motion.span
+                      className={cn("block", k === 1 && "serif-accent text-highlight")}
+                      initial={{ y: "105%" }}
+                      animate={go ? { y: "0%" } : undefined}
+                      transition={{ duration: 1.2, ease, delay: 0.45 + k * 0.09 }}
+                    >
+                      {line}
+                    </motion.span>
+                  </span>
+                ))}
+              </h1>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={go ? { opacity: 1, y: 0 } : undefined}
+                transition={{ duration: 1, ease, delay: 0.85 }}
+                className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-end xl:gap-10"
+              >
+                <p className="max-w-[38ch] text-[16px] leading-relaxed text-white/75 md:text-[17px]">{hero.subtitle}</p>
+                <div className="flex shrink-0 gap-2">
+                  <Link href={hero.primaryCta.href} className="btn h-13 bg-white px-6 text-ink hover:bg-highlight">
                     {hero.primaryCta.label} <ArrowUpRight className="h-4 w-4" />
                   </Link>
-                </Magnetic>
-                <Link href={hero.secondaryCta.href} className="btn btn-ghost h-13 px-6">
-                  {hero.secondaryCta.label}
-                </Link>
-              </div>
-            </motion.div>
-
-            <div className="lg:col-span-5 lg:col-start-6">
-              <QuickBook services={services} go={go} />
+                  <Link href={hero.secondaryCta.href} className="btn hidden h-13 bg-white/10 px-6 text-white backdrop-blur-md hover:bg-white/20 sm:inline-flex">
+                    {hero.secondaryCta.label}
+                  </Link>
+                </div>
+              </motion.div>
             </div>
 
+            {/* right: doctor on duty + specialty index */}
             <motion.div
-              className="flex items-end justify-between gap-6 lg:col-span-2 lg:col-start-11 lg:flex-col lg:items-end lg:text-right"
-              initial={{ opacity: 0, y: 24 }}
-              animate={go ? { opacity: 1, y: 0 } : undefined}
-              transition={{ duration: 1.1, ease, delay: 0.9 }}
+              className="lg:col-span-4 lg:col-start-9"
+              initial={{ opacity: 0, x: 30 }}
+              animate={go ? { opacity: 1, x: 0 } : undefined}
+              transition={{ duration: 1.1, ease, delay: 0.95 }}
             >
-              <div>
-                <p className="font-display text-[56px] font-semibold leading-none tracking-[-0.032em]">
-                  {hero.rating}
-                  <span className="text-accent">★</span>
-                </p>
-                <p className="mt-2 text-[13px] leading-snug text-muted">{hero.ratingLabel}</p>
-              </div>
-              <div className="flex gap-0.5 text-ink lg:mt-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
-                ))}
-              </div>
+              <AnimatePresence mode="wait">
+                {slide.doctor && (
+                  <motion.div
+                    key={slide.doctor.id + slide.service.id}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.5, ease }}
+                  >
+                    <Link
+                      href={`/book?doctor=${slide.doctor.id}&service=${slide.service.id}`}
+                      className="group flex items-center gap-3.5 rounded-[calc(var(--radius)*0.8)] bg-white/10 p-2.5 pr-4 ring-1 ring-white/15 backdrop-blur-xl transition-colors hover:bg-white/15"
+                    >
+                      <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[calc(var(--radius)*0.55)]">
+                        <Img src={slide.doctor.image} alt={slide.doctor.name} fill sizes="56px" className="object-cover" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5 text-[15px] font-semibold">
+                          <span className="truncate">{slide.doctor.name}</span>
+                          <Star className="h-3 w-3 shrink-0 fill-highlight text-highlight" />
+                          <span className="text-[12px] font-medium text-white/70">{slide.doctor.rating.toFixed(1)}</span>
+                        </span>
+                        <span className="mt-0.5 flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[12.5px] text-white/65">
+                          <CalendarClock className="h-3.5 w-3.5 shrink-0" /> <span className="lg:hidden xl:inline">Next free ·</span> <span className="truncate text-white">{nextLabel(slide.next)}</span>
+                        </span>
+                      </span>
+                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-highlight text-ink transition-transform duration-500 group-hover:rotate-45">
+                        <ArrowUpRight className="h-4 w-4" />
+                      </span>
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* index — vertical on desktop, horizontal chips on mobile */}
+              <ol className="no-scrollbar -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:mt-6 lg:block lg:space-y-0 lg:overflow-visible lg:px-0">
+                {slides.map((s, n) => {
+                  const active = n === i;
+                  return (
+                    <li key={s.service.id} className="shrink-0 lg:border-t lg:border-white/15">
+                      <button
+                        onClick={() => select(n)}
+                        className={cn(
+                          "group relative flex w-full items-center gap-3 rounded-full px-4 py-2 text-left text-[14px] transition-colors lg:rounded-none lg:px-0 lg:py-3 lg:text-[15px]",
+                          active ? "bg-white text-ink lg:bg-transparent lg:text-white" : "bg-white/10 text-white/60 backdrop-blur-md hover:text-white lg:bg-transparent lg:backdrop-blur-none",
+                        )}
+                      >
+                        <span className={cn("hidden w-6 text-[11px] font-semibold tabular-nums lg:block", active ? "text-highlight" : "text-white/40")}>
+                          {String(n + 1).padStart(2, "0")}
+                        </span>
+                        <span className="whitespace-nowrap font-medium">{s.service.name}</span>
+                        <span className={cn("ml-auto hidden text-[12px] tabular-nums transition-opacity lg:block", active ? "opacity-70" : "opacity-0 group-hover:opacity-50")}>
+                          from ₹{s.service.priceFrom.toLocaleString("en-IN")}
+                        </span>
+                        {active && (
+                          <motion.span style={{ width: bar }} className="absolute -top-px left-0 hidden h-[2px] bg-highlight lg:block" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
             </motion.div>
           </div>
-        </motion.div>
-      </section>
 
-      {/* the capsule opens up: scroll-zoom showcase */}
-      <div ref={zoomRef} className="relative h-[170vh] md:h-[220vh]">
-        <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden">
-          <motion.div style={{ width, borderRadius: radius, height: zoomH }} className="relative overflow-hidden">
-            <motion.div style={{ scale: imgScale }} className="absolute inset-0">
-              <Img src={hero.image} alt="Inside the clinic" fill sizes="100vw" className="object-cover" />
-            </motion.div>
-            <motion.div style={{ opacity: overlay }} className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent" />
-            <motion.div style={{ opacity: overlay, y: overlayY }} className="absolute inset-x-0 bottom-0 flex flex-col gap-6 p-6 text-white md:flex-row md:items-end md:justify-between md:p-14">
-              <p className="max-w-3xl font-display text-[clamp(2rem,5.4vw,5rem)] font-semibold leading-[0.95] tracking-[-0.025em]">
-                Sunlit rooms. <span className="serif-accent text-highlight">On-time</span> doctors. Zero clinic smell.
-              </p>
-              <div className="flex gap-2 md:mb-2">
-                {["7 min avg. wait", "Free valet", "Wheelchair friendly"].map((t) => (
-                  <span key={t} className="glass-dark whitespace-nowrap rounded-full px-3.5 py-2 text-[12px] font-medium text-white/90">{t}</span>
-                ))}
+          {/* stats rail */}
+          <motion.dl
+            className="mt-7 hidden grid-cols-4 border-t border-white/15 pt-5 md:grid"
+            initial={{ opacity: 0 }}
+            animate={go ? { opacity: 1 } : undefined}
+            transition={{ duration: 1, delay: 1.15 }}
+          >
+            {stats.slice(0, 3).map((s) => (
+              <div key={s.label} className="flex items-baseline gap-3">
+                <dt className="order-2 text-[12.5px] text-white/60">{s.label}</dt>
+                <dd className="font-display text-[22px] font-semibold tracking-[-0.02em]">
+                  {s.value.toLocaleString("en-IN")}
+                  {s.suffix}
+                </dd>
               </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </div>
-    </>
+            ))}
+            <div className="flex items-baseline justify-end gap-3">
+              <dd className="font-display text-[22px] font-semibold tracking-[-0.02em]">{hero.rating}★</dd>
+              <dt className="text-[12.5px] text-white/60">{hero.ratingLabel}</dt>
+            </div>
+          </motion.dl>
+        </motion.div>
+      </motion.div>
+    </section>
   );
 }

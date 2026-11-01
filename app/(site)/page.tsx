@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { readDb } from "@/lib/db";
+import { getAvailableSlots } from "@/app/actions";
+import { toISODate } from "@/lib/utils";
+import type { HeroSlide } from "@/components/site/sections/Hero";
 import { Hero } from "@/components/site/sections/Hero";
 import { Marquee } from "@/components/site/sections/Marquee";
 import { Statement } from "@/components/site/sections/Statement";
@@ -28,8 +31,27 @@ export default async function Home() {
   const posts = db.posts.filter((p) => p.published).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const faqs = byOrder(db.faqs).slice(0, 5);
 
+  // hero: featured specialties, each with its lead doctor and their real next free slot
+  const featured = services.filter((s) => s.featured).slice(0, 6);
+  const slides: HeroSlide[] = await Promise.all(
+    (featured.length ? featured : services.slice(0, 5)).map(async (service) => {
+      const doctor = doctors.find((d) => d.serviceIds[0] === service.id) ?? doctors.find((d) => d.serviceIds.includes(service.id)) ?? null;
+      let next: HeroSlide["next"] = null;
+      if (doctor) {
+        for (let k = 0; k < 10 && !next; k++) {
+          const d = new Date();
+          d.setDate(d.getDate() + k);
+          const iso = toISODate(d);
+          const slots = await getAvailableSlots(doctor.id, iso);
+          if (slots.length) next = { date: iso, time: slots[0] };
+        }
+      }
+      return { service, doctor, next };
+    }),
+  );
+
   const render: Record<HomeSectionKey, React.ReactNode> = {
-    hero: <Hero hero={home.hero} doctors={featuredDoctors} services={services} />,
+    hero: <Hero hero={home.hero} slides={slides} stats={home.stats} />,
     marquee: <Marquee items={home.marquee} />,
     statement: <Statement text={home.statement} />,
     services: <Services services={services} currency={settings.currency} />,

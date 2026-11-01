@@ -157,7 +157,7 @@ export function createSeed(): Database {
       description:
         "Orthopedic consults paired with an in-house physiotherapy studio for back pain, sports injuries, arthritis and post-surgical rehab.",
       icon: "Bone",
-      image: IMAGES.physio,
+      image: IMAGES.massage,
       priceFrom: 1200,
       duration: 45,
       features: ["Sports injury clinic", "Spine care", "Post-op rehab", "Posture correction"],
