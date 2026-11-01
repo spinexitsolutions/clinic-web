@@ -1,17 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { readDb } from "@/lib/db";
 import "./globals.css";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
-const instrument = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument",
-  display: "swap",
-});
+// Display: Bricolage Grotesque (characterful, optical-size aware grotesk)
+// Text/UI: Hanken Grotesk (crisp, neutral, great tabular numerals)
+const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage", display: "swap", axes: ["opsz", "wdth"] });
+const text = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken", display: "swap" });
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +31,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { appearance } = await readDb();
   const hex = (v: string, fallback: string) => (/^#[0-9a-f]{3,8}$/i.test(v) ? v : fallback);
   const radius = Math.max(0, Math.min(48, Number(appearance.radius) || 28));
-  const vars = `:root{--accent:${hex(appearance.accent, "#0E7C66")};--accent-ink:${hex(appearance.accentInk, "#FFFFFF")};--bg:${hex(appearance.background, "#F5F4F0")};--ink:${hex(appearance.ink, "#0B0D0C")};--radius:${radius}px}`;
+  const vars = `:root{--accent:${hex(appearance.accent, "#2B3BFF")};--accent-ink:${hex(appearance.accentInk, "#FFFFFF")};--highlight:${hex(appearance.highlight ?? "", "#D4FF3F")};--bg:${hex(appearance.background, "#F5F4F0")};--ink:${hex(appearance.ink, "#0B0D0C")};--radius:${radius}px}`;
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${instrument.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${display.variable} ${text.variable}`} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: vars }} />
       </head>

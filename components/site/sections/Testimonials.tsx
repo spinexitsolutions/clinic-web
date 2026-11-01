@@ -63,7 +63,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
                     <Star key={k} className="h-4 w-4 fill-current" strokeWidth={0} />
                   ))}
                 </div>
-                <blockquote className="max-w-4xl text-[clamp(1.6rem,3.8vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.035em]">
+                <blockquote className="max-w-4xl text-[clamp(1.6rem,3.8vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.025em]">
                   <span className="serif-accent">“</span>
                   {t.quote}
                   <span className="serif-accent">”</span>

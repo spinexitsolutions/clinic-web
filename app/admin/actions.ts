@@ -66,7 +66,7 @@ export async function saveSettings(settings: SiteSettings): Promise<AdminResult>
 
 export async function saveAppearance(appearance: Appearance): Promise<AdminResult> {
   await requireAdmin();
-  for (const k of ["accent", "accentInk", "background", "ink"] as const) {
+  for (const k of ["accent", "accentInk", "highlight", "background", "ink"] as const) {
     if (!HEX.test(appearance[k])) return { ok: false, error: `“${k}” must be a hex colour like #0E7C66` };
   }
   await mutate((db) => {

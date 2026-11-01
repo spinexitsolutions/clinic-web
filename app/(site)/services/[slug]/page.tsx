@@ -88,7 +88,7 @@ export default async function ServicePage({ params }: Props) {
 
       {doctors.length > 0 && (
         <section className="container-x pb-20 md:pb-28">
-          <h2 className="text-[clamp(2rem,5vw,4rem)] font-medium tracking-[-0.045em]">
+          <h2 className="text-[clamp(2rem,5vw,4rem)] font-semibold tracking-[-0.025em]">
             Your <span className="serif-accent text-accent">specialists</span>
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
@@ -100,7 +100,7 @@ export default async function ServicePage({ params }: Props) {
       )}
 
       <section className="container-x grid gap-10 pb-20 md:grid-cols-[1fr_1.4fr] md:gap-20 md:pb-28">
-        <h2 className="text-[clamp(2rem,5vw,4rem)] font-medium leading-none tracking-[-0.045em]">
+        <h2 className="text-[clamp(2rem,5vw,4rem)] font-semibold leading-none tracking-[-0.025em]">
           Common <span className="serif-accent text-accent">questions</span>
         </h2>
         <FAQList faqs={[...db.faqs].sort((a, b) => a.order - b.order).slice(0, 4)} />

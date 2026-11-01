@@ -7,13 +7,14 @@
    ─────────────────────────────────────────────────────────── */
 
 :root {
-  --accent: #0e7c66;
+  --accent: #2b3bff;
   --accent-ink: #ffffff;
-  --bg: #f5f4f0;
-  --ink: #0b0d0c;
-  --radius: 28px;
+  --highlight: #d4ff3f;
+  --bg: #f2f1ed;
+  --ink: #0c0d12;
+  --radius: 26px;
 
-  --accent-soft: color-mix(in oklab, var(--accent) 12%, white);
+  --accent-soft: color-mix(in oklab, var(--accent) 10%, white);
   --accent-deep: color-mix(in oklab, var(--accent) 70%, black);
   --muted: color-mix(in oklab, var(--ink) 55%, var(--bg));
   --line: color-mix(in oklab, var(--ink) 9%, transparent);
@@ -33,10 +34,13 @@
   --color-line: var(--line);
   --color-card: var(--card);
   --color-coral: #ff5a36;
+  --color-highlight: var(--highlight);
 
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, "SF Pro Display", sans-serif;
-  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  /* sans-serif only: one characterful display grotesk + one neutral text grotesk */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
 
   --radius-xl2: calc(var(--radius) * 0.6);
   --radius-card: var(--radius);
@@ -55,8 +59,27 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv11";
+  font-feature-settings: "ss01", "tnum" 0;
   overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+blockquote,
+.display,
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 96;
+}
+h1,
+h2,
+.display {
+  font-weight: 600;
+}
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 ::selection {
@@ -93,24 +116,29 @@ html.lenis body {
   }
 
   .eyebrow {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-size: 0.72rem;
-    letter-spacing: 0.14em;
+    font-weight: 600;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--muted);
   }
 
   .display {
-    font-weight: 500;
-    letter-spacing: -0.045em;
-    line-height: 0.95;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
   }
 
+  /* Accent words: same family, light weight, condensed width, accent colour.
+     Contrast comes from weight + colour instead of a serif. */
   .serif-accent {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 300;
+    font-stretch: 90%;
+    font-variation-settings: "opsz" 96, "wdth" 90;
+    letter-spacing: -0.03em;
   }
 
   .glass {
@@ -140,7 +168,8 @@ html.lenis body {
     font-weight: 500;
     font-size: 0.95rem;
     letter-spacing: -0.01em;
-    transition: transform 0.4s var(--ease-out), background-color 0.3s, color 0.3s, box-shadow 0.4s;
+    font-weight: 600;
+    transition: transform 0.5s var(--ease-out), background-color 0.4s var(--ease-out), color 0.4s var(--ease-out), box-shadow 0.5s var(--ease-out);
     white-space: nowrap;
   }
   .btn:active {

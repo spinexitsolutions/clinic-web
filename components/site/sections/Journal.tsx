@@ -33,7 +33,7 @@ export function Journal({ posts }: { posts: Post[] }) {
       <div className="mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">The journal</p>
-          <h2 className="mt-4 text-[clamp(2.4rem,6vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+          <h2 className="mt-4 text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
             <SplitWords text="Notes from" /> <span className="serif-accent text-accent"><SplitWords text="our doctors." delay={0.1} /></span>
           </h2>
         </div>

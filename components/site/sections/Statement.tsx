@@ -4,9 +4,8 @@ import { useRef } from "react";
 
 function Word({ children, progress, range }: { children: string; progress: MotionValue<number>; range: [number, number] }) {
   const opacity = useTransform(progress, range, [0.12, 1]);
-  const blur = useTransform(progress, range, ["blur(4px)", "blur(0px)"]);
   return (
-    <motion.span style={{ opacity, filter: blur }} className="inline-block">
+    <motion.span style={{ opacity }} className="inline-block">
       {children}&nbsp;
     </motion.span>
   );
@@ -22,7 +21,7 @@ export function Statement({ text }: { text: string }) {
       <p className="eyebrow mb-8 flex items-center gap-2">
         <span className="h-px w-8 bg-ink/30" /> Our philosophy
       </p>
-      <p className="max-w-[22ch] text-[clamp(2rem,5.6vw,5rem)] font-medium leading-[1.04] tracking-[-0.045em] md:max-w-[24ch]">
+      <p className="font-display max-w-[22ch] text-[clamp(2rem,5.6vw,5rem)] font-semibold leading-[1.04] tracking-[-0.032em] md:max-w-[24ch]">
         {words.map((w, i) => {
           const start = i / words.length;
           return (

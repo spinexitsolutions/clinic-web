@@ -104,7 +104,7 @@ export function Navbar({ hasAnnouncement }: { hasAnnouncement: boolean }) {
             <motion.div layout="position" className="flex h-14 items-center gap-1 pl-2 pr-2 md:h-[60px]">
               <Link href="/" className="group flex items-center gap-2.5 rounded-full py-2 pl-2 pr-3" aria-label={`${settings.name} home`}>
                 <Logo />
-                <span className="text-[15px] font-medium tracking-[-0.02em]">{settings.shortName}</span>
+                <span className="font-display text-[16px] font-semibold tracking-[-0.03em]">{settings.shortName}</span>
               </Link>
 
               {/* desktop links — hide while compact */}
@@ -156,7 +156,7 @@ export function Navbar({ hasAnnouncement }: { hasAnnouncement: boolean }) {
                   layout="position"
                   className={cn("ml-1 hidden items-center gap-2 rounded-full bg-bg/[0.07] px-3 py-1.5 text-[12px] text-bg/75 sm:flex", open && "sm:hidden")}
                 >
-                  <span className={cn("pulse-dot relative h-1.5 w-1.5 rounded-full", status.open ? "text-[#3ee59a] bg-[#3ee59a]" : "text-coral bg-coral")} />
+                  <span className={cn("pulse-dot relative h-1.5 w-1.5 rounded-full", status.open ? "text-highlight bg-highlight" : "text-coral bg-coral")} />
                   {status.label}
                 </motion.span>
               )}
@@ -223,7 +223,7 @@ export function Navbar({ hasAnnouncement }: { hasAnnouncement: boolean }) {
                             href={l.href}
                             className="group flex items-baseline justify-between gap-4 rounded-2xl px-3 py-2.5 transition-colors hover:bg-bg/[0.06]"
                           >
-                            <span className="text-[34px] font-medium leading-none tracking-[-0.04em] md:text-[40px]">
+                            <span className="font-display text-[34px] font-semibold leading-none tracking-[-0.032em] md:text-[40px]">
                               {l.label}
                             </span>
                             <span className="font-mono text-[11px] text-bg/40 transition-colors group-hover:text-accent">

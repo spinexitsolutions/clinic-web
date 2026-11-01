@@ -22,7 +22,7 @@ function StackCard({ step, i, total, progress }: { step: Step; i: number; total:
             Step {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
           </span>
           <div>
-            <h3 className="text-[clamp(2rem,4.5vw,3.8rem)] font-medium leading-[0.98] tracking-[-0.045em]">{step.title}</h3>
+            <h3 className="text-[clamp(2rem,4.5vw,3.8rem)] font-semibold leading-[0.92] tracking-[-0.025em]">{step.title}</h3>
             <p className="mt-5 max-w-sm text-[16px] leading-relaxed text-bg/65 md:text-lg">{step.text}</p>
           </div>
         </div>
@@ -43,7 +43,7 @@ export function Process({ steps }: { steps: HomeContent["process"] }) {
       <div className="mb-12 grid gap-6 md:mb-20 md:grid-cols-2 md:items-end">
         <div>
           <p className="eyebrow">How it works</p>
-          <h2 className="mt-4 text-[clamp(2.4rem,6vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+          <h2 className="mt-4 text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
             <SplitWords text="A visit, " />
             <span className="serif-accent text-accent"><SplitWords text="reimagined." delay={0.1} /></span>
           </h2>

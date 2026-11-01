@@ -447,11 +447,12 @@ export function createSeed(): Database {
       currency: "₹",
     },
     appearance: {
-      accent: "#0E7C66",
+      accent: "#2B3BFF",
       accentInk: "#FFFFFF",
-      background: "#F5F4F0",
-      ink: "#0B0D0C",
-      radius: 28,
+      highlight: "#D4FF3F",
+      background: "#F2F1ED",
+      ink: "#0C0D12",
+      radius: 26,
       intro: {
         enabled: true,
         style: "pulse",

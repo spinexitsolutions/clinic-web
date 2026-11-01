@@ -33,7 +33,7 @@ export function CTA({ cta, insurers }: { cta: HomeContent["cta"]; insurers: Insu
           </motion.div>
           <div className="absolute inset-0 bg-ink/45" />
           <div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-white">
-            <h2 className="max-w-[12ch] text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.9] tracking-[-0.06em]">
+            <h2 className="max-w-[12ch] text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.9] tracking-[-0.032em]">
               {cta.title.split(" ").slice(0, -1).join(" ")} <span className="serif-accent">{cta.title.split(" ").slice(-1)}</span>
             </h2>
             <p className="mt-6 max-w-md text-[17px] text-white/80">{cta.subtitle}</p>

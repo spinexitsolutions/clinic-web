@@ -10,13 +10,13 @@ import { cn } from "@/lib/utils";
 import { Card, ConfirmButton, PageHeader, SaveBar, SectionTitle, Segmented, useAction } from "./ui";
 import { ColorInput, Label, Toggle } from "./fields";
 
-const PRESETS: { name: string; accent: string; accentInk: string; background: string; ink: string }[] = [
-  { name: "Solace", accent: "#0E7C66", accentInk: "#FFFFFF", background: "#F5F4F0", ink: "#0B0D0C" },
-  { name: "Ocean", accent: "#1D4ED8", accentInk: "#FFFFFF", background: "#F4F6FA", ink: "#0A0F1C" },
-  { name: "Coral", accent: "#E8553B", accentInk: "#FFFFFF", background: "#FBF6F1", ink: "#1A1210" },
-  { name: "Lavender", accent: "#6D4AFF", accentInk: "#FFFFFF", background: "#F6F5FB", ink: "#100D1C" },
-  { name: "Sage", accent: "#5B7A5A", accentInk: "#FFFFFF", background: "#F2F1EA", ink: "#141712" },
-  { name: "Midnight", accent: "#C8F169", accentInk: "#0B0D0C", background: "#F3F3EF", ink: "#0B0D0C" },
+const PRESETS: { name: string; accent: string; accentInk: string; highlight: string; background: string; ink: string }[] = [
+  { name: "Cobalt", accent: "#2B3BFF", accentInk: "#FFFFFF", highlight: "#D4FF3F", background: "#F2F1ED", ink: "#0C0D12" },
+  { name: "Emerald", accent: "#0B7A5C", accentInk: "#FFFFFF", highlight: "#FFD84D", background: "#F3F2EC", ink: "#0B0F0D" },
+  { name: "Coral", accent: "#F2552C", accentInk: "#FFFFFF", highlight: "#FFE1D3", background: "#FBF6F1", ink: "#1A1210" },
+  { name: "Violet", accent: "#6A3DF5", accentInk: "#FFFFFF", highlight: "#B8F5E0", background: "#F5F4FA", ink: "#100D1C" },
+  { name: "Ocean", accent: "#0369A1", accentInk: "#FFFFFF", highlight: "#7FF0E1", background: "#F1F5F7", ink: "#07131C" },
+  { name: "Midnight", accent: "#C8F169", accentInk: "#0B0D0C", highlight: "#2B3BFF", background: "#F3F3EF", ink: "#0B0D0C" },
 ];
 
 export function AppearanceEditor({ appearance, clinicName }: { appearance: Appearance; clinicName: string }) {
@@ -27,7 +27,7 @@ export function AppearanceEditor({ appearance, clinicName }: { appearance: Appea
   const dirty = JSON.stringify(a) !== JSON.stringify(appearance);
   const intro = a.intro;
   const setIntro = (patch: Partial<Appearance["intro"]>) => setA({ ...a, intro: { ...intro, ...patch } });
-  const vars = { "--accent": a.accent, "--accent-ink": a.accentInk, "--bg": a.background, "--ink": a.ink, "--radius": `${a.radius}px` } as React.CSSProperties;
+  const vars = { "--accent": a.accent, "--accent-ink": a.accentInk, "--highlight": a.highlight, "--bg": a.background, "--ink": a.ink, "--radius": `${a.radius}px` } as React.CSSProperties;
 
   return (
     <div>
@@ -41,7 +41,7 @@ export function AppearanceEditor({ appearance, clinicName }: { appearance: Appea
               {PRESETS.map((p) => {
                 const on = p.accent === a.accent && p.background === a.background;
                 return (
-                  <button key={p.name} onClick={() => setA({ ...a, accent: p.accent, accentInk: p.accentInk, background: p.background, ink: p.ink })} className={cn("group rounded-2xl p-2 text-left transition hairline", on ? "ring-2 ring-ink" : "hover:-translate-y-0.5")}>
+                  <button key={p.name} onClick={() => setA({ ...a, accent: p.accent, accentInk: p.accentInk, highlight: p.highlight, background: p.background, ink: p.ink })} className={cn("group rounded-2xl p-2 text-left transition hairline", on ? "ring-2 ring-ink" : "hover:-translate-y-0.5")}>
                     <div className="relative h-14 overflow-hidden rounded-xl" style={{ background: p.background }}>
                       <span className="absolute bottom-2 left-2 size-6 rounded-full" style={{ background: p.accent }} />
                       <span className="absolute bottom-2 left-6 size-6 rounded-full ring-2" style={{ background: p.ink, ["--tw-ring-color" as string]: p.background }} />
@@ -59,6 +59,7 @@ export function AppearanceEditor({ appearance, clinicName }: { appearance: Appea
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 sm:col-span-1"><Label>Accent</Label><ColorInput value={a.accent} onChange={(v) => setA({ ...a, accent: v })} /></div>
               <div className="col-span-2 sm:col-span-1"><Label>Text on accent</Label><ColorInput value={a.accentInk} onChange={(v) => setA({ ...a, accentInk: v })} /></div>
+              <div className="col-span-2 sm:col-span-1"><Label>Highlight (small pops)</Label><ColorInput value={a.highlight ?? "#D4FF3F"} onChange={(v) => setA({ ...a, highlight: v })} /></div>
               <div className="col-span-2 sm:col-span-1"><Label>Background</Label><ColorInput value={a.background} onChange={(v) => setA({ ...a, background: v })} /></div>
               <div className="col-span-2 sm:col-span-1"><Label>Ink (text)</Label><ColorInput value={a.ink} onChange={(v) => setA({ ...a, ink: v })} /></div>
               <div className="col-span-2">

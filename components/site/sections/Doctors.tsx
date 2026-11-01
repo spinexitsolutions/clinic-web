@@ -45,7 +45,7 @@ export function Doctors({ doctors }: { doctors: Doctor[] }) {
       <div className="container-x mb-10 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">Meet the doctors</p>
-          <h2 className="mt-4 max-w-[16ch] text-[clamp(2.4rem,6vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+          <h2 className="mt-4 max-w-[16ch] text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
             <SplitWords text="Specialists who" /> <span className="serif-accent text-accent"><SplitWords text="make time." delay={0.12} /></span>
           </h2>
         </div>

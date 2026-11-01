@@ -24,7 +24,7 @@ function Card({ s, i, currency }: { s: Service; i: number; currency: string }) {
         <span className="absolute right-4 top-4 font-mono text-[11px] text-white/90 mix-blend-difference">{String(i + 1).padStart(2, "0")}</span>
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-[26px] font-medium leading-none tracking-[-0.035em]">{s.name}</h3>
+        <h3 className="text-[26px] font-medium leading-none tracking-[-0.025em]">{s.name}</h3>
         <p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-muted">{s.short}</p>
         <div className="mt-auto flex items-center justify-between pt-5">
           <span className="text-sm">
@@ -63,7 +63,7 @@ export function Services({ services, currency }: { services: Service[]; currency
     <div className="container-x flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div>
         <p className="eyebrow">Specialties · {services.length}</p>
-        <h2 className="mt-4 max-w-[14ch] text-[clamp(2.4rem,6vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+        <h2 className="mt-4 max-w-[14ch] text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
           <SplitWords text="Everything you need," /> <span className="serif-accent text-accent"><SplitWords text="under one roof." delay={0.15} /></span>
         </h2>
       </div>

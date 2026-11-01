@@ -29,7 +29,7 @@ export default async function Home() {
   const faqs = byOrder(db.faqs).slice(0, 5);
 
   const render: Record<HomeSectionKey, React.ReactNode> = {
-    hero: <Hero hero={home.hero} doctors={featuredDoctors} />,
+    hero: <Hero hero={home.hero} doctors={featuredDoctors} services={services} />,
     marquee: <Marquee items={home.marquee} />,
     statement: <Statement text={home.statement} />,
     services: <Services services={services} currency={settings.currency} />,
@@ -43,7 +43,7 @@ export default async function Home() {
       <section className="container-x grid gap-10 py-20 md:grid-cols-[1fr_1.4fr] md:gap-20 md:py-32">
         <div>
           <p className="eyebrow">Questions</p>
-          <h2 className="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+          <h2 className="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
             <SplitWords text="Good to" /> <span className="serif-accent text-accent"><SplitWords text="know." delay={0.1} /></span>
           </h2>
           <Link href="/faq" className="btn btn-ghost mt-8">

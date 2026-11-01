@@ -47,7 +47,7 @@ export default async function AboutPage() {
       <section className="container-x grid gap-12 pb-24 md:grid-cols-[1fr_1.4fr] md:gap-20 md:pb-36">
         <div>
           <p className="eyebrow">Milestones</p>
-          <h2 className="mt-4 text-[clamp(2.2rem,5vw,4rem)] font-medium leading-[1] tracking-[-0.045em]">
+          <h2 className="mt-4 text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[0.95] tracking-[-0.025em]">
             A decade of <span className="serif-accent text-accent">doing it right.</span>
           </h2>
           <div className="mt-10 flex flex-wrap gap-2">

@@ -336,7 +336,7 @@ function Row({ k, v }: { k: string; v?: string }) {
 function StepTitle({ n, title, sub }: { n: number; title: string; sub?: string }) {
   return (
     <div className="mb-6">
-      <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-medium leading-[1.02] tracking-[-0.04em]">
+      <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-medium leading-[1.02] tracking-[-0.028em]">
         <span className="serif-accent text-accent">{n}.</span> {title}
       </h2>
       {sub && <p className="mt-2 text-muted">{sub}</p>}
@@ -395,7 +395,7 @@ function Confirmation({
           <motion.path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6, delay: 0.45, ease }} />
         </svg>
       </motion.div>
-      <h2 className="mt-8 text-[clamp(2.2rem,6vw,4rem)] font-medium leading-none tracking-[-0.045em]">
+      <h2 className="mt-8 text-[clamp(2.2rem,6vw,4rem)] font-semibold leading-none tracking-[-0.025em]">
         You&apos;re booked, <span className="serif-accent text-accent">{name.split(" ")[0]}.</span>
       </h2>
       <p className="mt-4 text-lg text-muted">We&apos;ll confirm by SMS shortly. Please arrive 10 minutes early.</p>

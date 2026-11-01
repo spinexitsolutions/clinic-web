@@ -115,7 +115,7 @@ export function Intro({ cfg }: { cfg: IntroCfg }) {
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
             {cfg.style === "pulse" && <Pulse />}
 
-            <h1 className="relative flex overflow-hidden text-[19vw] font-medium leading-[0.9] tracking-[-0.06em] md:text-[12vw]">
+            <h1 className="relative flex overflow-hidden text-[19vw] font-medium leading-[0.9] tracking-[-0.032em] md:text-[12vw]">
               {letters.map((l, i) => (
                 <motion.span
                   key={i}
@@ -129,7 +129,7 @@ export function Intro({ cfg }: { cfg: IntroCfg }) {
                 </motion.span>
               ))}
               <motion.span
-                className="mb-[0.12em] ml-[0.05em] inline-block h-[0.16em] w-[0.16em] self-end rounded-full bg-accent"
+                className="mb-[0.12em] ml-[0.05em] inline-block h-[0.16em] w-[0.16em] self-end rounded-full bg-highlight"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 400, damping: 14, delay: 0.9 + letters.length * 0.06 }}
@@ -151,7 +151,7 @@ export function Intro({ cfg }: { cfg: IntroCfg }) {
           {/* bottom: progress */}
           <div className="relative z-10 flex items-end justify-between gap-6 px-5 pb-6 md:px-10 md:pb-10">
             <div className="h-px flex-1 overflow-hidden bg-bg/15">
-              <div className="h-full bg-accent transition-[width] duration-100" style={{ width: `${count}%` }} />
+              <div className="h-full bg-highlight transition-[width] duration-100" style={{ width: `${count}%` }} />
             </div>
             <span className="font-mono text-5xl tabular-nums tracking-tight md:text-7xl">
               {String(count).padStart(3, "0")}
@@ -169,7 +169,7 @@ function Pulse() {
       <motion.path
         d="M0 100 L420 100 L445 100 L462 70 L480 128 L505 18 L532 186 L556 100 L600 100 L622 84 L646 100 L1200 100"
         fill="none"
-        stroke="var(--accent)"
+        stroke="var(--highlight)"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -177,7 +177,7 @@ function Pulse() {
         initial={{ pathLength: 0, opacity: 1 }}
         animate={{ pathLength: 1, opacity: [1, 1, 0.18] }}
         transition={{ pathLength: { duration: 1.3, ease: [0.65, 0, 0.35, 1] }, opacity: { duration: 2, times: [0, 0.6, 1] } }}
-        style={{ filter: "drop-shadow(0 0 12px var(--accent))" }}
+        style={{ filter: "drop-shadow(0 0 14px var(--highlight))" }}
       />
     </svg>
   );

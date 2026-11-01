@@ -108,7 +108,7 @@ export default async function DoctorPage({ params }: Props) {
       </section>
 
       <section className="container-x py-24 md:py-36">
-        <h2 className="text-[clamp(2rem,5vw,4rem)] font-medium tracking-[-0.045em]">
+        <h2 className="text-[clamp(2rem,5vw,4rem)] font-semibold tracking-[-0.025em]">
           Other <span className="serif-accent text-accent">specialists</span>
         </h2>
         <div className="mt-10 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">

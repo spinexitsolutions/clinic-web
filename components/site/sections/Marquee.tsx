@@ -12,13 +12,13 @@ function Row({ items, reverse, outline }: { items: string[]; reverse?: boolean; 
           <span key={i} className="flex items-center gap-8 md:gap-12">
             <span
               className={cn(
-                "whitespace-nowrap text-[clamp(2.4rem,7vw,6rem)] font-medium leading-none tracking-[-0.05em]",
+                "font-display whitespace-nowrap text-[clamp(2.4rem,7vw,6rem)] font-semibold leading-none tracking-[-0.025em]",
                 outline && "text-transparent [-webkit-text-stroke:1.2px_var(--ink)] opacity-40",
               )}
             >
               {t}
             </span>
-            <span className="serif-accent text-[clamp(2rem,5vw,4.5rem)] leading-none text-accent">✳</span>
+            <span className="grid h-[clamp(2.2rem,4.5vw,4rem)] w-[clamp(2.2rem,4.5vw,4rem)] shrink-0 place-items-center rounded-full bg-accent text-[clamp(1rem,2vw,1.6rem)] leading-none text-highlight">✚</span>
           </span>
         ))}
       </div>

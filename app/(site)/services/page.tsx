@@ -34,7 +34,7 @@ export default async function ServicesPage() {
                   <Icon name={s.icon} className="h-6 w-6" />
                 </span>
                 <span>
-                  <span className="block text-[clamp(1.5rem,3.2vw,2.6rem)] font-medium leading-none tracking-[-0.04em] transition-transform duration-500 group-hover:translate-x-2">
+                  <span className="block text-[clamp(1.5rem,3.2vw,2.6rem)] font-medium leading-none tracking-[-0.028em] transition-transform duration-500 group-hover:translate-x-2">
                     {s.name}
                   </span>
                   <span className="mt-2 block text-[14px] text-muted md:hidden">From {money(s.priceFrom, db.settings.currency)}</span>

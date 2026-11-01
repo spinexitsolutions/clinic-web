@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="grid min-h-svh place-items-center bg-bg px-6 text-center">
       <div>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-muted">Error 404</p>
-        <h1 className="mt-4 text-[clamp(3rem,12vw,9rem)] font-medium leading-[0.9] tracking-[-0.06em]">
+        <h1 className="mt-4 text-[clamp(3rem,12vw,9rem)] font-medium leading-[0.9] tracking-[-0.032em]">
           Lost? <span className="serif-accent text-accent">We&apos;ll guide you.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-md text-muted">The page you&apos;re looking for has moved or never existed.</p>

@@ -14,7 +14,7 @@ export function Footer({ settings, appearance, services }: { settings: SiteSetti
         <div className="grid gap-10 border-b border-bg/10 pb-14 md:grid-cols-[1.4fr_1fr] md:gap-16">
           <div>
             <p className="eyebrow !text-bg/50">The Solace Letter</p>
-            <h3 className="mt-4 max-w-xl text-[clamp(1.9rem,4.5vw,3.2rem)] font-medium leading-[1.02] tracking-[-0.04em]">
+            <h3 className="mt-4 max-w-xl text-[clamp(1.9rem,4.5vw,3.2rem)] font-medium leading-[1.02] tracking-[-0.028em]">
               Honest health advice, <span className="serif-accent text-accent">once a month.</span>
             </h3>
             <div className="mt-8 max-w-md">
@@ -94,7 +94,7 @@ export function Footer({ settings, appearance, services }: { settings: SiteSetti
         </div>
       </div>
       <div className="pointer-events-none select-none overflow-hidden" aria-hidden>
-        <p className="flex items-center justify-center gap-[2vw] whitespace-nowrap text-center text-[24vw] font-medium leading-[0.75] tracking-[-0.07em] text-bg/[0.06]">
+        <p className="flex items-center justify-center gap-[2vw] whitespace-nowrap text-center font-display text-[24vw] font-bold leading-[0.75] tracking-[-0.025em] text-bg/[0.06]">
           <Logo className="h-[14vw] w-[14vw] opacity-30 [&_svg]:h-[8vw] [&_svg]:w-[8vw]" />
           {settings.shortName}
         </p>

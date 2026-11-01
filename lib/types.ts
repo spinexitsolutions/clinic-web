@@ -40,6 +40,7 @@ export interface SiteSettings {
 export interface Appearance {
   accent: string; // hex
   accentInk: string; // text colour used on top of accent
+  highlight: string; // secondary pop colour (small details)
   background: string;
   ink: string;
   radius: number; // px

@@ -23,7 +23,7 @@ export function PackageGrid({ packages, currency }: { packages: Package[]; curre
             <h3 className="text-[22px] font-medium tracking-[-0.03em]">{p.name}</h3>
             <p className={cn("mt-2 text-[15px]", p.highlighted ? "text-bg/60" : "text-muted")}>{p.tagline}</p>
             <div className="mt-8 flex items-baseline gap-3">
-              <span className="text-[52px] font-medium leading-none tracking-[-0.05em]">{money(p.price, currency)}</span>
+              <span className="text-[52px] font-medium leading-none tracking-[-0.025em]">{money(p.price, currency)}</span>
               {p.compareAt > p.price && (
                 <span className={cn("text-[15px] line-through", p.highlighted ? "text-bg/40" : "text-muted")}>{money(p.compareAt, currency)}</span>
               )}
@@ -57,7 +57,7 @@ export function Packages({ packages, currency }: { packages: Package[]; currency
     <section className="container-x py-20 md:py-32">
       <div className="mb-12 text-center md:mb-20">
         <p className="eyebrow">Health checkups</p>
-        <h2 className="mx-auto mt-4 max-w-[16ch] text-[clamp(2.4rem,6vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+        <h2 className="mx-auto mt-4 max-w-[16ch] text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
           <SplitWords text="Prevention," /> <span className="serif-accent text-accent"><SplitWords text="priced honestly." delay={0.1} /></span>
         </h2>
       </div>
