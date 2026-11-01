@@ -1,38 +1,37 @@
-import { cn } from "@/lib/utils";
-
-function Row({ items, reverse, outline }: { items: string[]; reverse?: boolean; outline?: boolean }) {
-  const list = [...items, ...items];
-  return (
-    <div className="flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-      <div
-        className="animate-marquee flex shrink-0 items-center gap-8 pr-8 md:gap-12 md:pr-12"
-        style={{ animationDirection: reverse ? "reverse" : "normal", ["--marquee-duration" as string]: `${items.length * 5}s` }}
-      >
-        {list.map((t, i) => (
-          <span key={i} className="flex items-center gap-8 md:gap-12">
-            <span
-              className={cn(
-                "font-display whitespace-nowrap text-[clamp(2.4rem,7vw,6rem)] font-semibold leading-none tracking-[-0.025em]",
-                outline && "text-transparent [-webkit-text-stroke:1.2px_var(--ink)] opacity-40",
-              )}
-            >
-              {t}
-            </span>
-            <span className="grid h-[clamp(2.2rem,4.5vw,4rem)] w-[clamp(2.2rem,4.5vw,4rem)] shrink-0 place-items-center rounded-full bg-accent text-[clamp(1rem,2vw,1.6rem)] leading-none text-highlight">✚</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
+/** Slim specialties band: fixed label, items ticking past behind an edge fade. */
 export function Marquee({ items }: { items: string[] }) {
   if (!items.length) return null;
-  const half = Math.ceil(items.length / 2);
+  const list = [...items, ...items];
   return (
-    <section aria-label="Specialties" className="space-y-3 py-16 md:space-y-5 md:py-28">
-      <Row items={items.slice(0, half).concat(items.slice(half))} />
-      <Row items={items.slice(half).concat(items.slice(0, half))} reverse outline />
+    <section aria-label="Specialties" className="px-2 py-10 md:px-3 md:py-14">
+      <div className="relative flex h-[76px] items-center overflow-hidden rounded-full bg-ink text-bg md:h-[92px]">
+        <div className="relative z-10 flex h-full shrink-0 items-center pl-2 pr-3 md:pl-3 md:pr-6">
+          <span className="flex h-[56px] items-center gap-3 rounded-full bg-accent pl-2 pr-5 text-accent-ink md:h-[68px] md:pr-6">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-highlight font-display text-[15px] font-semibold text-ink md:h-[52px] md:w-[52px] md:text-[18px]">
+              {items.length}
+            </span>
+            <span className="text-[12px] font-semibold uppercase leading-tight tracking-[0.14em] md:text-[13px]">
+              Specialties
+              <span className="hidden font-normal normal-case tracking-normal text-accent-ink/70 md:block">under one roof</span>
+            </span>
+          </span>
+        </div>
+        <div className="relative flex min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
+          <div
+            className="animate-marquee flex shrink-0 items-center"
+            style={{ ["--marquee-duration" as string]: `${items.length * 4.5}s` }}
+          >
+            {list.map((t, i) => (
+              <span key={i} className="flex items-center">
+                <span className="whitespace-nowrap px-6 font-display text-[22px] font-medium tracking-[-0.02em] text-bg/90 md:px-9 md:text-[28px]">
+                  {t}
+                </span>
+                <span aria-hidden className="text-[18px] font-light text-highlight md:text-[22px]">+</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

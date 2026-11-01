@@ -15,7 +15,7 @@ export default async function BookPage({ searchParams }: Props) {
   const pkg = db.packages.find((p) => p.id === sp.package);
   const serviceId = services.some((s) => s.id === sp.service) ? sp.service : pkg ? services.find((s) => s.slug === "diagnostics-lab")?.id ?? services[0]?.id : undefined;
   return (
-    <section className="container-x pb-24 pt-32 md:pb-36 md:pt-44">
+    <section className="container-x pb-24 pt-10 md:pb-36 md:pt-16">
       <div className="mb-10 md:mb-16">
         <p className="eyebrow flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Takes about 40 seconds</p>
         <h1 className="display mt-5 text-[clamp(2.8rem,8vw,7rem)]">

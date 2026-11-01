@@ -13,6 +13,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const db = await readDb();
   const { settings, appearance } = db;
   const services = [...db.services].sort((a, b) => a.order - b.order);
+  const navData = {
+    services: services.map(({ id, slug, name, icon, priceFrom, short, image, featured }) => ({ id, slug, name, icon, priceFrom, short, image, featured })),
+    doctors: [...db.doctors].sort((a, b) => a.order - b.order).map(({ id, slug, name, specialty, image, rating }) => ({ id, slug, name, specialty, image, rating })),
+    posts: db.posts.filter((p) => p.published).map(({ slug, title, category }) => ({ slug, title, category })),
+  };
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "MedicalClinic",
@@ -34,9 +39,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <SmoothScroll enabled={appearance.smoothScroll} />
       {appearance.cursorFollower && <Cursor />}
       <AnnouncementBar />
-      <Navbar hasAnnouncement={settings.announcement.enabled && !!settings.announcement.text} />
+      <Navbar data={navData} />
       <main className="relative">{children}</main>
       <Footer settings={settings} appearance={appearance} services={services} />
+      <div className="h-24 bg-ink lg:hidden" aria-hidden />
       <WhatsAppButton />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     </SiteProvider>

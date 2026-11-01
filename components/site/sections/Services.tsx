@@ -1,106 +1,191 @@
 "use client";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
-import type { Service } from "@/lib/types";
-import { money } from "@/lib/utils";
+import { useState } from "react";
+import { ArrowUpRight, Clock, Plus } from "lucide-react";
+import type { Doctor, Service } from "@/lib/types";
+import { cn, money } from "@/lib/utils";
 import { Img } from "../Img";
 import { Icon } from "../Icon";
-import { SplitWords } from "@/components/motion/Reveal";
+import { Reveal, SplitWords } from "@/components/motion/Reveal";
 
-function Card({ s, i, currency }: { s: Service; i: number; currency: string }) {
-  return (
-    <Link
-      href={`/services/${s.slug}`}
-      data-cursor="Explore"
-      className="group relative flex h-[min(68svh,560px)] w-[82vw] shrink-0 snap-start flex-col overflow-hidden rounded-[var(--radius)] bg-card hairline sm:w-[380px] md:w-[420px]"
-    >
-      <div className="relative h-[58%] overflow-hidden">
-        <Img src={s.image} alt={s.name} fill sizes="(max-width:768px) 82vw, 420px" className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.06]" />
-        <span className="glass absolute left-4 top-4 grid h-11 w-11 place-items-center rounded-full">
-          <Icon name={s.icon} className="h-5 w-5" />
-        </span>
-        <span className="absolute right-4 top-4 font-mono text-[11px] text-white/90 mix-blend-difference">{String(i + 1).padStart(2, "0")}</span>
-      </div>
-      <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-[26px] font-medium leading-none tracking-[-0.025em]">{s.name}</h3>
-        <p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-muted">{s.short}</p>
-        <div className="mt-auto flex items-center justify-between pt-5">
-          <span className="text-sm">
-            <span className="text-muted">From </span>
-            <span className="font-medium">{money(s.priceFrom, currency)}</span>
-          </span>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-ink text-bg transition-all duration-500 group-hover:rotate-45 group-hover:bg-accent">
-            <ArrowUpRight className="h-4 w-4" />
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
+const ease = [0.22, 1, 0.36, 1] as const;
+const wipe = [0.76, 0, 0.24, 1] as const;
 
-/** Pinned horizontal gallery on desktop, swipeable snap carousel on mobile. */
-export function Services({ services, currency }: { services: Service[]; currency: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [distance, setDistance] = useState(0);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], [0, -distance]);
-  const bar = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-
-  useEffect(() => {
-    const measure = () => {
-      if (!trackRef.current) return;
-      setDistance(Math.max(0, trackRef.current.scrollWidth - window.innerWidth + 80));
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [services.length]);
-
-  const header = (
-    <div className="container-x flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-      <div>
-        <p className="eyebrow">Specialties · {services.length}</p>
-        <h2 className="mt-4 max-w-[14ch] text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
-          <SplitWords text="Everything you need," /> <span className="serif-accent text-accent"><SplitWords text="under one roof." delay={0.15} /></span>
-        </h2>
-      </div>
-      <Link href="/services" className="btn btn-ghost self-start md:self-auto">
-        All services <ArrowUpRight className="h-4 w-4" />
-      </Link>
-    </div>
-  );
+/**
+ * Specialty explorer — an index of specialties on the left drives a sticky,
+ * image-led detail panel on the right (desktop). On phones each row expands
+ * in place into an image card.
+ */
+export function Services({ services, currency, doctors = [] }: { services: Service[]; currency: string; doctors?: Doctor[] }) {
+  const [active, setActiveRaw] = useState(0);
+  const [layers, setLayers] = useState<{ id: number; i: number }[]>([{ id: 0, i: 0 }]);
+  const setActive = (i: number) => {
+    if (i === active) return;
+    setActiveRaw(i);
+    setLayers((l) => [...l.slice(-1), { id: l[l.length - 1].id + 1, i }]);
+  };
+  const [openMobile, setOpenMobile] = useState<number | null>(0);
+  const s = services[active];
+  const docsFor = (id: string) => doctors.filter((d) => d.serviceIds.includes(id));
 
   return (
-    <section id="services" className="relative">
-      {/* mobile / tablet */}
-      <div className="py-20 lg:hidden">
-        {header}
-        <div className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-pl-5 px-5 pb-4 md:scroll-pl-10 md:px-10">
-          {services.map((s, i) => (
-            <Card key={s.id} s={s} i={i} currency={currency} />
-          ))}
+    <section id="services" className="container-x py-20 md:py-32">
+      {/* header */}
+      <div className="mb-12 grid gap-6 md:mb-16 lg:grid-cols-12 lg:items-end">
+        <div className="lg:col-span-7">
+          <p className="eyebrow flex items-center gap-3">
+            <span className="text-accent">02</span> <span className="h-px w-8 bg-line" /> Specialties
+          </p>
+          <h2 className="mt-5 text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
+            <SplitWords text="Every specialty," /> <span className="serif-accent text-accent"><SplitWords text="one calm roof." delay={0.12} /></span>
+          </h2>
         </div>
+        <Reveal delay={0.15} className="lg:col-span-4 lg:col-start-9">
+          <p className="text-[16px] leading-relaxed text-muted">
+            {services.length} departments that share one record, one care team and one plan — so you never repeat your story twice.
+          </p>
+          <Link href="/services" className="mt-5 inline-flex items-center gap-2 text-[14px] font-semibold text-accent">
+            Browse all specialties <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </Reveal>
       </div>
 
-      {/* desktop pinned */}
-      <div ref={ref} className="relative hidden lg:block" style={{ height: `calc(100vh + ${distance}px)` }}>
-        <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-          {header}
-          <motion.div ref={trackRef} style={{ x }} className="mt-12 flex gap-5 pl-10 pr-10 xl:pl-[max(2.5rem,calc((100vw-1320px)/2+2.5rem))]">
-            {services.map((s, i) => (
-              <Card key={s.id} s={s} i={i} currency={currency} />
-            ))}
-          </motion.div>
-          <div className="container-x mt-10">
-            <div className="h-px w-full bg-line">
-              <motion.div className="h-px bg-ink" style={{ width: bar }} />
+      {/* desktop explorer */}
+      <div className="hidden gap-14 lg:grid lg:grid-cols-[1fr_1.05fr]">
+        <ol className="border-t border-line">
+          {services.map((x, i) => {
+            const on = i === active;
+            const n = docsFor(x.id).length;
+            return (
+              <li key={x.id} className="relative border-b border-line" onMouseEnter={() => setActive(i)}>
+                {on && <motion.span layoutId="svc-bar" className="absolute -left-5 top-0 h-full w-[3px] rounded-full bg-accent" transition={{ duration: 0.45, ease }} />}
+                <Link href={`/services/${x.slug}`} onFocus={() => setActive(i)} className="group flex items-center gap-6 py-5">
+                  <span className={cn("w-7 text-[12px] font-semibold tabular-nums transition-colors", on ? "text-accent" : "text-ink/30")}>{String(i + 1).padStart(2, "0")}</span>
+                  <span className={cn("font-display text-[clamp(1.6rem,2.4vw,2.2rem)] font-semibold leading-none tracking-[-0.03em] transition-all duration-500", on ? "translate-x-1 text-ink" : "text-ink/30")}>
+                    {x.name}
+                  </span>
+                  <span className={cn("ml-auto flex items-center gap-4 text-[13px] transition-opacity duration-500", on ? "opacity-100" : "opacity-0")}>
+                    <span className="text-muted">{n ? `${n} doctor${n > 1 ? "s" : ""}` : "Care team"}</span>
+                    <span className="font-semibold">from {money(x.priceFrom, currency)}</span>
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-ink text-bg transition-transform duration-500 group-hover:rotate-45">
+                      <ArrowUpRight className="h-4 w-4" />
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* sticky detail */}
+        <div className="relative">
+          <div className="sticky top-24">
+            <div className="relative aspect-[4/5] max-h-[78vh] w-full overflow-hidden rounded-[calc(var(--radius)*1.1)] bg-ink">
+              {layers.map((l) => (
+                <motion.div
+                  key={l.id}
+                  className="absolute inset-0"
+                  initial={l.id === 0 ? false : { clipPath: "inset(100% 0% 0% 0%)" }}
+                  animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+                  transition={{ duration: 0.9, ease: wipe }}
+                >
+                  <motion.div className="absolute inset-0" initial={l.id === 0 ? false : { scale: 1.25, y: 40 }} animate={{ scale: 1.04, y: 0 }} transition={{ duration: 1.4, ease }}>
+                    <Img src={services[l.i].image} alt={services[l.i].name} fill sizes="45vw" className="object-cover" />
+                  </motion.div>
+                </motion.div>
+              ))}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-ink/30" />
+
+              <div className="absolute left-5 right-5 top-5 flex items-center justify-between text-white">
+                <span className="glass-dark flex h-11 items-center gap-2.5 rounded-full pl-1.5 pr-4 text-[13px] font-medium">
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-highlight text-ink">
+                    <Icon name={s.icon} className="h-4 w-4" strokeWidth={2} />
+                  </span>
+                  {s.name}
+                </span>
+                <span className="font-display text-[13px] font-semibold tabular-nums text-white/70">
+                  {String(active + 1).padStart(2, "0")} / {String(services.length).padStart(2, "0")}
+                </span>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={s.id}
+                  className="absolute inset-x-0 bottom-0 p-6 text-white xl:p-8"
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease, delay: 0.25 } }}
+                  exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
+                >
+                  <p className="max-w-md text-[17px] leading-relaxed text-white/85">{s.short}</p>
+                  <div className="mt-5 flex flex-wrap gap-1.5">
+                    {s.features.slice(0, 4).map((f) => (
+                      <span key={f} className="rounded-full bg-white/12 px-3 py-1.5 text-[12.5px] backdrop-blur-md">{f}</span>
+                    ))}
+                  </div>
+                  <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/15 pt-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex -space-x-2">
+                        {docsFor(s.id).slice(0, 3).map((d) => (
+                          <span key={d.id} className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-ink">
+                            <Img src={d.image} alt={d.name} fill sizes="36px" className="object-cover" />
+                          </span>
+                        ))}
+                      </div>
+                      <span className="flex items-center gap-1.5 text-[13px] text-white/70">
+                        <Clock className="h-3.5 w-3.5" /> {s.duration} min · from <span className="font-semibold text-white">{money(s.priceFrom, currency)}</span>
+                      </span>
+                    </div>
+                    <Link href={`/book?service=${s.id}`} className="btn h-11 shrink-0 bg-white px-5 text-ink hover:bg-highlight">
+                      Book <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
+
+      {/* mobile accordion */}
+      <ol className="border-t border-line lg:hidden">
+        {services.map((x, i) => {
+          const on = openMobile === i;
+          return (
+            <li key={x.id} className="border-b border-line">
+              <button onClick={() => setOpenMobile(on ? null : i)} aria-expanded={on} className="flex w-full items-center gap-4 py-4 text-left">
+                <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl transition-colors", on ? "bg-accent text-accent-ink" : "bg-accent-soft text-accent")}>
+                  <Icon name={x.icon} className="h-[18px] w-[18px]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-display text-[21px] font-semibold leading-tight tracking-[-0.02em]">{x.name}</span>
+                  <span className="text-[12.5px] text-muted">from {money(x.priceFrom, currency)} · {x.duration} min</span>
+                </span>
+                <motion.span animate={{ rotate: on ? 45 : 0 }} transition={{ duration: 0.35, ease }} className="grid h-9 w-9 place-items-center rounded-full border border-line">
+                  <Plus className="h-4 w-4" />
+                </motion.span>
+              </button>
+              <AnimatePresence initial={false}>
+                {on && (
+                  <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} transition={{ duration: 0.5, ease }} className="overflow-hidden">
+                    <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-[var(--radius)]">
+                      <Img src={x.image} alt={x.name} fill sizes="100vw" className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                        <p className="text-[14.5px] leading-snug text-white/85">{x.short}</p>
+                        <div className="mt-3 flex gap-2">
+                          <Link href={`/book?service=${x.id}`} className="btn h-10 bg-white px-4 text-[14px] text-ink">Book</Link>
+                          <Link href={`/services/${x.slug}`} className="btn h-10 bg-white/15 px-4 text-[14px] text-white backdrop-blur-md">Details</Link>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }

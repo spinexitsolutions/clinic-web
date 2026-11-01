@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowUpRight, Star } from "lucide-react";
 import type { Doctor } from "@/lib/types";
 import { Img } from "../Img";
-import { Reveal, SplitWords } from "@/components/motion/Reveal";
 import { cn } from "@/lib/utils";
 
 export function DoctorCard({ d, className }: { d: Doctor; className?: string }) {
@@ -39,27 +38,4 @@ export function DoctorCard({ d, className }: { d: Doctor; className?: string }) 
   );
 }
 
-export function Doctors({ doctors }: { doctors: Doctor[] }) {
-  return (
-    <section className="py-20 md:py-32">
-      <div className="container-x mb-10 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="eyebrow">Meet the doctors</p>
-          <h2 className="mt-4 max-w-[16ch] text-[clamp(2.4rem,6vw,5.2rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
-            <SplitWords text="Specialists who" /> <span className="serif-accent text-accent"><SplitWords text="make time." delay={0.12} /></span>
-          </h2>
-        </div>
-        <Link href="/doctors" className="btn btn-ghost self-start md:self-auto">
-          All doctors <ArrowUpRight className="h-4 w-4" />
-        </Link>
-      </div>
-      <div className="container-x no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-pl-5 pb-2 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
-        {doctors.slice(0, 4).map((d, i) => (
-          <Reveal key={d.id} delay={i * 0.08} className="w-[72vw] shrink-0 snap-start sm:w-[44vw] md:w-auto">
-            <DoctorCard d={d} />
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
+export { DoctorsBoard as Doctors } from "./DoctorsBoard";

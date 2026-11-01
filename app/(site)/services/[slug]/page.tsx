@@ -28,7 +28,7 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <>
-      <section className="container-x pt-36 md:pt-48">
+      <section className="container-x pt-12 md:pt-20">
         <Reveal>
           <Link href="/services" className="eyebrow inline-flex items-center gap-2 hover:text-ink">
             ← All services

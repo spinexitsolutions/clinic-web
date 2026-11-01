@@ -1,109 +1,147 @@
 "use client";
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Star } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { Quote, Star } from "lucide-react";
 import type { Testimonial } from "@/lib/types";
-import { Img } from "../Img";
 import { cn } from "@/lib/utils";
+import { Img } from "../Img";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Testimonials({ items }: { items: Testimonial[] }) {
-  const [i, setI] = useState(0);
-  const [dir, setDir] = useState(1);
-  const [paused, setPaused] = useState(false);
-  const t = items[i];
+const KEYFRAMES = `
+@keyframes solace-vup { from { transform: translateY(0) } to { transform: translateY(-50%) } }
+@keyframes solace-vdown { from { transform: translateY(-50%) } to { transform: translateY(0) } }
+@keyframes solace-hleft { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+.solace-wall:hover .solace-track { animation-play-state: paused }
+`;
 
-  const go = (d: number) => {
-    setDir(d);
-    setI((p) => (p + d + items.length) % items.length);
-  };
+function Card({ t }: { t: Testimonial }) {
+  return (
+    <figure className="rounded-[calc(var(--radius)*0.8)] bg-white p-6 shadow-[inset_0_0_0_1px_var(--line)]">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-0.5 text-[#F5A524]">
+          {Array.from({ length: t.rating }).map((_, k) => (
+            <Star key={k} className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
+          ))}
+        </div>
+        <Quote className="h-5 w-5 text-accent/25" />
+      </div>
+      <blockquote className="mt-4 font-sans text-[16px] leading-relaxed text-ink/85">{t.quote}</blockquote>
+      <figcaption className="mt-6 flex items-center gap-3">
+        <span className="relative h-10 w-10 overflow-hidden rounded-full">
+          <Img src={t.image} alt={t.name} fill sizes="40px" className="object-cover" />
+        </span>
+        <span className="leading-tight">
+          <span className="block text-[14px] font-semibold">{t.name}</span>
+          <span className="text-[12.5px] text-muted">{t.role}</span>
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
 
-  useEffect(() => {
-    if (paused || items.length < 2) return;
-    const id = setTimeout(() => go(1), 6500);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i, paused, items.length]);
+function Column({ items, dir, duration }: { items: Testimonial[]; dir: "up" | "down"; duration: number }) {
+  const list = [...items, ...items];
+  return (
+    <div className="relative h-full overflow-hidden">
+      <div className="solace-track flex flex-col gap-4" style={{ animation: `${dir === "up" ? "solace-vup" : "solace-vdown"} ${duration}s linear infinite` }}>
+        {list.map((t, i) => (
+          <Card key={`${t.id}-${i}`} t={t} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  if (!t) return null;
+const DIST = [
+  { stars: 5, pct: 89 },
+  { stars: 4, pct: 8 },
+  { stars: 3, pct: 2 },
+  { stars: 2, pct: 0.6 },
+  { stars: 1, pct: 0.4 },
+];
+
+/** Wall of voices: rating summary + endlessly drifting review columns. */
+export function Testimonials({
+  items,
+  rating = "4.9",
+  reviewCount = "3,200+",
+}: {
+  items: Testimonial[];
+  rating?: string;
+  reviewCount?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const go = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
+  if (!items.length) return null;
+
+  // spread items into columns; repeat when there are few
+  const pool = items.length < 6 ? [...items, ...items] : items;
+  const cols: Testimonial[][] = [[], [], []];
+  pool.forEach((t, i) => cols[i % 3].push(t));
 
   return (
-    <section className="py-20 md:py-32" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div className="container-x">
-        <div className="relative overflow-hidden rounded-[calc(var(--radius)*1.2)] bg-accent px-6 py-12 text-accent-ink md:px-16 md:py-20">
-          <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
-          <div className="flex items-center justify-between">
-            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-accent-ink/70">Patient stories</p>
-            <p className="font-mono text-[12px] tabular-nums text-accent-ink/70">
-              {String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
-            </p>
-          </div>
+    <section className="py-20 md:py-32">
+      <style>{KEYFRAMES}</style>
+      <div ref={ref} className="container-x grid gap-12 lg:grid-cols-12 lg:gap-10">
+        {/* rating summary */}
+        <div className="lg:col-span-4">
+          <p className="eyebrow">Patient stories</p>
+          <h2 className="mt-4 text-[clamp(2.3rem,5vw,4.2rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
+            Heard, <span className="serif-accent text-accent">not hurried.</span>
+          </h2>
 
-          <div className="relative mt-10 min-h-[300px] md:min-h-[260px]">
-            <AnimatePresence mode="wait" custom={dir}>
-              <motion.figure
-                key={t.id}
-                custom={dir}
-                initial={{ opacity: 0, x: dir * 60, filter: "blur(8px)" }}
-                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, x: dir * -60, filter: "blur(8px)" }}
-                transition={{ duration: 0.7, ease }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x < -60) go(1);
-                  else if (info.offset.x > 60) go(-1);
-                }}
-                className="cursor-grab active:cursor-grabbing"
-              >
-                <div className="mb-6 flex gap-1">
-                  {Array.from({ length: t.rating }).map((_, k) => (
+          <div className="mt-10 rounded-[var(--radius)] bg-ink p-6 text-bg md:p-8">
+            <div className="flex items-end gap-4">
+              <span className="font-display text-[84px] font-semibold leading-[0.8] tracking-[-0.05em]">{rating}</span>
+              <span className="pb-1">
+                <span className="flex gap-0.5 text-highlight">
+                  {Array.from({ length: 5 }).map((_, k) => (
                     <Star key={k} className="h-4 w-4 fill-current" strokeWidth={0} />
                   ))}
-                </div>
-                <blockquote className="max-w-4xl text-[clamp(1.6rem,3.8vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.025em]">
-                  <span className="serif-accent">“</span>
-                  {t.quote}
-                  <span className="serif-accent">”</span>
-                </blockquote>
-                <figcaption className="mt-10 flex items-center gap-4">
-                  <span className="relative h-12 w-12 overflow-hidden rounded-full ring-2 ring-white/30">
-                    <Img src={t.image} alt={t.name} fill sizes="48px" className="object-cover" />
+                </span>
+                <span className="mt-1.5 block text-[13px] text-bg/60">{reviewCount} Google reviews</span>
+              </span>
+            </div>
+            <ul className="mt-8 space-y-2.5">
+              {DIST.map((d, i) => (
+                <li key={d.stars} className="flex items-center gap-3 text-[12px] tabular-nums text-bg/60">
+                  <span className="w-3">{d.stars}</span>
+                  <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg/10">
+                    <motion.span
+                      className="block h-full origin-left rounded-full bg-highlight"
+                      style={{ width: `${Math.max(d.pct, 1.5)}%` }}
+                      initial={{ scaleX: 0 }}
+                      animate={go ? { scaleX: 1 } : undefined}
+                      transition={{ duration: 1.4, ease, delay: 0.2 + i * 0.08 }}
+                    />
                   </span>
-                  <span>
-                    <span className="block font-medium">{t.name}</span>
-                    <span className="text-[14px] text-accent-ink/70">{t.role}</span>
-                  </span>
-                </figcaption>
-              </motion.figure>
-            </AnimatePresence>
-          </div>
-
-          <div className="mt-10 flex items-center justify-between gap-4">
-            <div className="flex gap-1.5">
-              {items.map((x, k) => (
-                <button
-                  key={x.id}
-                  onClick={() => {
-                    setDir(k > i ? 1 : -1);
-                    setI(k);
-                  }}
-                  aria-label={`Show story ${k + 1}`}
-                  className={cn("h-1.5 rounded-full bg-accent-ink transition-all duration-500", k === i ? "w-8 opacity-100" : "w-1.5 opacity-30")}
-                />
+                  <span className="w-9 text-right">{d.pct}%</span>
+                </li>
               ))}
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => go(-1)} aria-label="Previous" className="grid h-12 w-12 place-items-center rounded-full border border-accent-ink/25 transition-colors hover:bg-accent-ink hover:text-accent">
-                <ArrowLeft className="h-4 w-4" />
-              </button>
-              <button onClick={() => go(1)} aria-label="Next" className="grid h-12 w-12 place-items-center rounded-full border border-accent-ink/25 transition-colors hover:bg-accent-ink hover:text-accent">
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
+            </ul>
+            <p className="mt-8 border-t border-bg/10 pt-5 text-[13px] leading-relaxed text-bg/55">
+              Every review is from a verified visit. We reply to every single one — the good and the hard.
+            </p>
           </div>
+        </div>
+
+        {/* wall — desktop */}
+        <div className="solace-wall relative hidden h-[680px] grid-cols-3 gap-4 [mask-image:linear-gradient(180deg,transparent,black_12%,black_88%,transparent)] lg:col-span-8 lg:grid">
+          <Column items={cols[0]} dir="up" duration={38} />
+          <Column items={cols[1]} dir="down" duration={44} />
+          <Column items={cols[2]} dir="up" duration={41} />
+        </div>
+      </div>
+
+      {/* wall — mobile/tablet */}
+      <div className="solace-wall mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)] lg:hidden">
+        <div className="solace-track flex w-max gap-4 px-5" style={{ animation: `solace-hleft ${items.length * 8}s linear infinite` }}>
+          {[...items, ...items].map((t, i) => (
+            <div key={`${t.id}-${i}`} className={cn("w-[82vw] max-w-[360px] shrink-0")}>
+              <Card t={t} />
+            </div>
+          ))}
         </div>
       </div>
     </section>

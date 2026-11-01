@@ -125,10 +125,10 @@ export function Hero({ hero, slides, stats }: { hero: HomeContent["hero"]; slide
   if (!slide) return null;
 
   return (
-    <section ref={sectionRef} className="relative px-2 pt-2 md:px-3 md:pt-3">
+    <section ref={sectionRef} className="relative px-2 md:px-3">
       <motion.div
         style={{ scale: frameScale }}
-        className="relative h-[calc(100svh-3.5rem)] min-h-[640px] origin-top overflow-hidden rounded-[calc(var(--radius)*1.15)] bg-ink text-white md:h-[calc(100svh-3.75rem)]"
+        className="relative h-[calc(100svh-12rem)] min-h-[600px] origin-top overflow-hidden rounded-[calc(var(--radius)*1.15)] bg-ink text-white md:h-[calc(100svh-7.75rem)] lg:min-h-[640px]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -155,7 +155,7 @@ export function Hero({ hero, slides, stats }: { hero: HomeContent["hero"]; slide
           transition={{ duration: 1.2, ease: slatEase }}
         />
 
-        <motion.div style={{ y: contentY }} className="relative z-20 flex h-full flex-col px-5 pb-5 pt-[88px] md:px-10 md:pb-8 md:pt-[104px]">
+        <motion.div style={{ y: contentY }} className="relative z-20 flex h-full flex-col px-5 pb-5 pt-5 md:px-10 md:pb-8 md:pt-7">
           {/* meta */}
           <motion.div
             className="flex items-center justify-between text-[12px] font-medium text-white/75"

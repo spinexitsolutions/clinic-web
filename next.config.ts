@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // lets a second dev server run side-by-side (NEXT_DIST_DIR=.next-alt)
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },

@@ -28,7 +28,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <article>
       <ReadingProgress />
-      <header className="container-x pt-36 text-center md:pt-48">
+      <header className="container-x pt-12 text-center md:pt-20">
         <Reveal>
           <Link href="/blog" className="eyebrow hover:text-ink">← Journal</Link>
           <div className="mt-8 flex items-center justify-center gap-3 font-mono text-[12px] uppercase tracking-[0.1em] text-muted">

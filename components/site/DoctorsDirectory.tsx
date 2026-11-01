@@ -22,7 +22,7 @@ export function DoctorsDirectory({ doctors, services }: { doctors: Doctor[]; ser
 
   return (
     <section className="container-x pb-24 md:pb-36">
-      <div className="sticky top-[84px] z-20 -mx-2 mb-8 flex flex-col gap-3 rounded-[24px] p-2 glass md:flex-row md:items-center">
+      <div className="sticky top-3 z-20 -mx-2 mb-8 flex flex-col gap-3 rounded-[24px] p-2 glass md:flex-row md:items-center">
         <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
           {[{ id: "all", name: "All" }, ...used].map((s) => (
             <button

@@ -27,7 +27,7 @@ export default async function DoctorPage({ params }: Props) {
 
   return (
     <>
-      <section className="container-x grid gap-10 pt-32 md:grid-cols-[1fr_1.1fr] md:gap-16 md:pt-44">
+      <section className="container-x grid gap-10 pt-10 md:grid-cols-[1fr_1.1fr] md:gap-16 md:pt-16">
         <Reveal className="relative">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius)] bg-accent-soft md:sticky md:top-28">
             <Img src={d.image} alt={d.name} fill priority sizes="(max-width:768px) 100vw, 45vw" className="object-cover" />

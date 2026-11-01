@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { readDb } from "@/lib/db";
 import { getAvailableSlots } from "@/app/actions";
 import { toISODate } from "@/lib/utils";
@@ -14,9 +12,8 @@ import { Doctors } from "@/components/site/sections/Doctors";
 import { Packages } from "@/components/site/sections/Packages";
 import { Testimonials } from "@/components/site/sections/Testimonials";
 import { Journal } from "@/components/site/sections/Journal";
-import { FAQList } from "@/components/site/sections/FAQ";
+import { FAQSection } from "@/components/site/sections/FAQ";
 import { CTA } from "@/components/site/sections/CTA";
-import { SplitWords } from "@/components/motion/Reveal";
 import type { HomeSectionKey } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -29,52 +26,46 @@ export default async function Home() {
   const doctors = byOrder(db.doctors);
   const featuredDoctors = doctors.filter((d) => d.featured).concat(doctors.filter((d) => !d.featured));
   const posts = db.posts.filter((p) => p.published).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  const faqs = byOrder(db.faqs).slice(0, 5);
+  const faqs = byOrder(db.faqs).slice(0, 6);
+  const medDirector = doctors.find((d) => d.slug === "dr-meera-iyer") ?? doctors[0];
 
-  // hero: featured specialties, each with its lead doctor and their real next free slot
-  const featured = services.filter((s) => s.featured).slice(0, 6);
-  const slides: HeroSlide[] = await Promise.all(
-    (featured.length ? featured : services.slice(0, 5)).map(async (service) => {
-      const doctor = doctors.find((d) => d.serviceIds[0] === service.id) ?? doctors.find((d) => d.serviceIds.includes(service.id)) ?? null;
-      let next: HeroSlide["next"] = null;
-      if (doctor) {
-        for (let k = 0; k < 10 && !next; k++) {
-          const d = new Date();
-          d.setDate(d.getDate() + k);
-          const iso = toISODate(d);
-          const slots = await getAvailableSlots(doctor.id, iso);
-          if (slots.length) next = { date: iso, time: slots[0] };
+  // real next free slot per doctor (from their schedule minus booked appointments)
+  const nextSlots: Record<string, { date: string; time: string } | null> = {};
+  await Promise.all(
+    doctors.map(async (doc) => {
+      nextSlots[doc.id] = null;
+      for (let k = 0; k < 10; k++) {
+        const d = new Date();
+        d.setDate(d.getDate() + k);
+        const iso = toISODate(d);
+        const slots = await getAvailableSlots(doc.id, iso);
+        if (slots.length) {
+          nextSlots[doc.id] = { date: iso, time: slots[0] };
+          break;
         }
       }
-      return { service, doctor, next };
     }),
   );
+
+  // hero: featured specialties, each with its lead doctor
+  const featured = services.filter((s) => s.featured).slice(0, 6);
+  const slides: HeroSlide[] = (featured.length ? featured : services.slice(0, 5)).map((service) => {
+    const doctor = doctors.find((d) => d.serviceIds[0] === service.id) ?? doctors.find((d) => d.serviceIds.includes(service.id)) ?? null;
+    return { service, doctor, next: doctor ? nextSlots[doctor.id] : null };
+  });
 
   const render: Record<HomeSectionKey, React.ReactNode> = {
     hero: <Hero hero={home.hero} slides={slides} stats={home.stats} />,
     marquee: <Marquee items={home.marquee} />,
-    statement: <Statement text={home.statement} />,
-    services: <Services services={services} currency={settings.currency} />,
-    stats: <Stats stats={home.stats} />,
+    statement: <Statement text={home.statement} signature={medDirector ? { name: medDirector.name, role: "Medical Director", image: medDirector.image } : undefined} />,
+    services: <Services services={services} currency={settings.currency} doctors={doctors} />,
+    stats: <Stats stats={home.stats} avatars={featuredDoctors.map((d) => d.image)} accreditations={db.about.accreditations} />,
     process: <Process steps={home.process} />,
-    doctors: <Doctors doctors={featuredDoctors} />,
+    doctors: <Doctors doctors={featuredDoctors} nextSlots={nextSlots} currency={settings.currency} />,
     packages: <Packages packages={byOrder(db.packages)} currency={settings.currency} />,
-    testimonials: <Testimonials items={db.testimonials.filter((t) => t.visible)} />,
+    testimonials: <Testimonials items={db.testimonials.filter((t) => t.visible)} rating={home.hero.rating} />,
     blog: <Journal posts={posts} />,
-    faq: (
-      <section className="container-x grid gap-10 py-20 md:grid-cols-[1fr_1.4fr] md:gap-20 md:py-32">
-        <div>
-          <p className="eyebrow">Questions</p>
-          <h2 className="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-semibold leading-[0.92] tracking-[-0.025em]">
-            <SplitWords text="Good to" /> <span className="serif-accent text-accent"><SplitWords text="know." delay={0.1} /></span>
-          </h2>
-          <Link href="/faq" className="btn btn-ghost mt-8">
-            All FAQs <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <FAQList faqs={faqs} />
-      </section>
-    ),
+    faq: <FAQSection faqs={faqs} avatars={featuredDoctors.map((d) => d.image)} />,
     cta: <CTA cta={home.cta} insurers={db.insurers} />,
   };
 

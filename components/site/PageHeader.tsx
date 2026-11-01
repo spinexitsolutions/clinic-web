@@ -14,7 +14,7 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="container-x pb-12 pt-36 md:pb-20 md:pt-48">
+    <section className="container-x pb-12 pt-12 md:pb-20 md:pt-20">
       <Reveal>
         <p className="eyebrow flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" /> {eyebrow}
