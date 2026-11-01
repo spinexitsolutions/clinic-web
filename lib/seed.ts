@@ -4,6 +4,11 @@ const U = (id: string) => `https://images.unsplash.com/photo-${id}`;
 
 export const IMAGES = {
   reception: U("1519494026892-80bbd2d6fd0d"),
+  lobby: U("1631248055158-edec7a3c072b"),
+  deskTeam: U("1666214277657-e60f05c40b04"),
+  dentalStudio: U("1629909613638-0e4a1fad8f81"),
+  massage: U("1519823551278-64ac92734fb1"),
+  labCorridor: U("1579154204601-01588f351e67"),
   consult: U("1631217868264-e5b90bb7e133"),
   surgeonsCircle: U("1579684385127-1ef15d508118"),
   screens: U("1666214280557-f1b5022eb634"),
@@ -106,7 +111,7 @@ export function createSeed(): Database {
       short: "Bright, pain-aware dentistry in a studio that feels nothing like a clinic.",
       description:
         "Cleanings, aligners, implants and smile design — delivered with digital scans, gentle techniques and transparent pricing.",
-      icon: "Smile",
+      icon: "Toothbrush",
       image: IMAGES.dentalRoom,
       priceFrom: 600,
       duration: 40,
@@ -490,7 +495,7 @@ export function createSeed(): Database {
         titleLine2: "before it treats.",
         subtitle:
           "Twelve specialties, one calm place. Same-day appointments with doctors who have the time to actually hear you.",
-        image: IMAGES.reception,
+        image: IMAGES.lobby,
         primaryCta: { label: "Book an appointment", href: "/book" },
         secondaryCta: { label: "Explore services", href: "/services" },
         rating: "4.9",
@@ -507,7 +512,7 @@ export function createSeed(): Database {
       ],
       process: [
         { title: "Book in 30 seconds", text: "Pick a specialty, a doctor and a slot that suits you — online, on WhatsApp or by phone.", image: IMAGES.screens },
-        { title: "Arrive to no queue", text: "Check in with a QR code. Average waiting time at Solace is under 7 minutes.", image: IMAGES.reception },
+        { title: "Arrive to no queue", text: "Check in with a QR code. Average waiting time at Solace is under 7 minutes.", image: IMAGES.lobby },
         { title: "A real conversation", text: "Consultations are scheduled long enough to listen properly, examine carefully and explain clearly.", image: IMAGES.consult },
         { title: "Care that follows up", text: "Digital prescriptions, reports on your phone and a care team that checks in after your visit.", image: IMAGES.hands },
       ],
@@ -524,7 +529,7 @@ export function createSeed(): Database {
       story:
         "Every detail of Solace — from our sunlit waiting lounge to our 7-minute average wait — is designed to remove the anxiety from visiting a doctor. We invest in technology so our doctors can spend less time on screens and more time with you. We publish our prices. We call you back. And we never rush a consultation.",
       image: IMAGES.ward,
-      gallery: [IMAGES.reception, IMAGES.dentalRoom, IMAGES.lab, IMAGES.screens2],
+      gallery: [IMAGES.lobby, IMAGES.dentalStudio, IMAGES.labCorridor, IMAGES.deskTeam],
       values: [
         { title: "Time is treatment", text: "Appointments are 20–50 minutes long, because good medicine starts with listening." },
         { title: "Radically transparent", text: "Prices are published. Reports are explained. Options are laid out honestly." },
